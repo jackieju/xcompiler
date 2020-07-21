@@ -673,7 +673,7 @@ if $*.size >0
     p "cost #{Time.now.to_i - _time_start }sec"
 else
     p "no file specified"
-    p "usage: ruby translate.rb <c source file>\n
+    p "usage: ruby translate.rb <source file>\n
     example: ruby translate.rb xiaolu.c"
 end
 
