@@ -20,7 +20,7 @@ cd abap2ruby
 
 <pre>
     cd cocoR\
-    ./gen_parser <atg file>
+    ./gen_parser [atg file]
 </pre>
 
 3. Modify macro.rb to do preprocessing
@@ -29,5 +29,7 @@ cd abap2ruby
 
 5. run
 <pre>
-    ruby translate.rb -d <output dir> <source code files>
+    ruby translate.rb -d [output dir] [source code files]
 </pre>
+
+For example to use xcompiler to translate code, please see https://github.com/jackieju/abap2ruby
