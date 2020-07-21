@@ -1,2 +1,2 @@
 # xcompiler
-Cross compiler any programming language to another
+Cross compile any programming language to another
