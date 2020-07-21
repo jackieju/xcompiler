@@ -4,7 +4,18 @@ Cross compile any programming language to another
 
 *** HOW TO USE
 
-1. Generate Parser from EBNF
+1. Prepare
+You need to have ruby 2.6+
+
+You need to download cpp2ruby first.
+<pre>
+cd ..
+git clone https://github.com/jackieju/CPP2Ruby.git
+cd abap2ruby
+</pre>
+
+
+2. Generate Parser from EBNF
 
 
 <pre>
@@ -12,11 +23,11 @@ Cross compile any programming language to another
     ./gen_parser <atg file>
 </pre>
 
-2. Modify macro.rb to do preprocessing
+3. Modify macro.rb to do preprocessing
 
-3. Modfiy cp.rb to do overriding
+4. Modfiy cp.rb to do overriding
 
-4. run
+5. run
 <pre>
     ruby translate.rb -d <output dir> <source code files>
 </pre>
