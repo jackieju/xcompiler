@@ -1,0 +1,4 @@
+#make -f unix.mk new 
+make -f unix.mk cocor
+
+cp cocor ../../

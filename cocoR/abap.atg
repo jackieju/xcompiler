@@ -1,0 +1,2661 @@
+COMPILER C
+
+/*IGNORECASE*/
+
+CHARACTERS
+  letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+  digit    = "0123456789" .
+  hexdigit = digit + "ABCDEFabcdef" .
+  tab      = CHR(9) .
+  eol      = CHR(10) .
+  files    = letter + digit + ":\." .
+  
+  strings3 = CHR(32) .. CHR(255) - '|' .
+  chars    = CHR(32) .. CHR(255) - '"' .
+  strings  = CHR(32) .. CHR(255) - "'" .
+  strings2  = CHR(32) .. CHR(255) - "`" .
+
+  macros   = ANY - eol .
+  space = CHR(32).
+  idn      = letter + digit + "_" +"<"+">".
+
+COMMENTS FROM "/*" TO "*/"
+COMMENTS FROM "\"" TO eol
+
+IGNORE
+  tab + eol + CHR(13)
+
+TOKENS
+ /*identifier = ["!"]( "_" | letter) { ("_" | letter | digit ) | ( ("~"|"-"|"->") ("_" | letter | digit |"*") )}
+           | "/" ( "_" | letter){("_" | letter | digit ) } {"/" ( "_" | letter) {("_" | letter | digit ) }} 
+           | "<" ("_" | letter | digit ) { ("_" | letter | digit ) }">".*/
+           
+  number     = digit { digit } [ "U" | "u" | "L" | "l" ] .
+  hexnumber  = "0" ( "x" | "X" ) hexdigit { hexdigit } [ "U" | "u" | "L" | "l" ] .
+  string1    = "'" { strings } "'"  |  "`" { strings2 } "`"  .
+  char       = '"' [ "\\" ] chars '"' .
+  regex1     = "|" { strings3 } "|" .
+  Colon      = ":" .
+  space1     = space .
+  identifier =   ["!"|"/"|"<"] ( "_" | letter)  { idn | ( ("~"|"-"|"->"|"/") ( idn |"*") )}.
+      
+
+PRAGMAS
+
+  PreProcessor = "##" ( "_" | letter){ "_" | letter | digit } .
+		    
+
+PRODUCTIONS
+
+     /* Type name cannot include "REF"*/
+    AllowedKeywordsForTypeName = "DATA" | "VALUE" | "PARAMETER" | "PARAMETERS" | "TARGET" 
+                        | "MESSAGE" | "END" | "CREATE" | "KEY" |"ID"|"DEFAULT"|"LENGTH"|"DECIMALS"|"BOXED"
+                        |"SUFFIX" | "COMPONENTS" |"EXCEPTIONS" | "KIND" |"DELETE" | "ACTIVATION" | "OF"
+                        |"EOF"|"REPORT"|"NO"|"PAGE"|"HEADING"|"DEFINING"|"DATABASE"|"REDUCED"|"FUNCTIONALITY"|"FUNCTION"|"ENDFUNCTION"|"ENDSELECT"|"FIELDS"|"DISTINCT"|"FROM"|"AS"|"USING"|"CLIENT"|"SPECIFIED"|"INNER"|"LEFT"|"RIGHT"|"OUTER"|"CROSS"|"JOIN"|"ON"
+                        |"ORDER"|"BY"|"PRIMARY"|"ASCENDING"|"DESCENDING"|"APPENDING"|"CORRESPONDING"|"PACKAGE"|"SIZE"|"SELECT"|"SINGLE"|"FOR"|"UPDATE"|"ENTRIES"|"IN"|"WHERE"|"GROUP"|"HAVING"|"UNION"|"EXTENDED"|"RESULT"|"CREATING"
+                        |"READER"|"LOCATOR"|"COLUMNS"|"BLOB"|"CLOB"|"OFFSET"|"UP"|"TO"|"ROWS"|"BYPASSING"|"BUFFER"|"CONNECTION"|"ENDWITH"|"TABLES"|"MOVE"|"EXACT"|"PERCENTAGE"|"EXPANDING"|"NESTED"|"KEEPING"|"APPEND"|"LINE"
+                        |"CASTING"|"CONCATENATE"|"CHARACTER"|"BYTE"|"MODE"|"SEPARATED"|"RESPECTING"|"BLANKS"|"SEARCH"|"STARTING"|"AT"|"ENDING"|"ABBREVIATED"|"AND"|"MARK"|"RAISE"|"EVENT"|"RESUMABLE"|"EXCEPTION"|"NUMBER"|"DISPLAY"|"LIKE"
+                        |"RAISING"|"INDEX"|"TEXT"|"WITHOUT"|"MEMBERS"|"LOOP"|"VERSION"|"SCREEN"|"ENDLOOP"|"LOB"|"HANDLE"|"EMPTY"|"HEADER"|"UNIQUE"|"PRIMARY_KEY"|"ALIAS"|"STATICS"|"CONSTANTS"|"BEGIN"|"COMMON"|"PART"|"OCCURS"|"VALID"
+                        |"BETWEEN"|"IS"|"WRITE"|"UNDER"|"CENTERED"|"EXPONENT"|"CURRENCY"|"ROUND"|"UNIT"|"ENVIRONMENT"|"TIME"|"FORMAT"|"ZONE"|"STYLE"|"MASK"|"DDMMYY"|"MMDDYY"|"YYMMDD"|"CHECKBOX"|"ICON"|"SYMBOL"|"QUICKINFO"|"CONTINUE"|"CASE"|"WHEN"|"OR"|"OTHERS"|"ENDCASE"
+                        |"FIELD"|"DUMMY"|"OBJECT"|"USER"|"DATASET"|"ADJACENT"|"DUPLICATES"|"COMPARING"|"MEMORY"|"SHARED"|"VARYING"|"NEXT"|"DO"|"TIMES"|"ENDDO"|"OPTIONAL"|"EVENTS"|"MODIFY"|"CURRENT"|"CHANGE"|"ENDON"|"OPEN"|"CURSOR"|"HOLD"|"INPUT"|"OUTPUT"
+                        |"ENCODING"|"SKIPPING"|"NATIVE"|"SMART"|"UNIX"|"WINDOWS"|"LINEFEED"|"LEGACY"|"BIG"|"LITTLE"|"ENDIAN"|"CODE"|"POSITION"|"FILTER"|"IGNORING"|"CONVERSION"|"ERRORS"|"REPLACEMENT"|"FETCH"|"BOUNDS"|"PROVIDE"|"INCLUDING"|"GAPS"|"ENDPROVIDE"|"READ"
+                        |"MAXIMUM"|"ACTUAL"|"WIDTH"|"TEXTPOOL"|"LANGUAGE"|"SORT"|"SUBMIT"|"VIA"|"PROGRAM"|"EQ"|"NE"|"CP"|"NP"|"GE"|"LT"|"LE"|"GT"|"NOT"|"FREE"|"SELECTIONS"|"LIST"|"SPOOL"|"ARCHIVE"|"DYNPRO"|"JOB"|"RETURN"|"TRY"|"CATCH"|"BEFORE"|"UNWIND"|"CLEANUP"
+                        |"ENDTRY"|"ASSOCIATION"|"TYPES"|"ENUM"|"STRUCTURE"|"BASE"|"MESH"|"SET"|"WHILE"|"VARY"|"ENDWHILE"|"TASK"|"NEW"|"BACKGROUND"|"SEPARATE"|"DESTINATION"|"CALLING"|"PERFORMING"|"IF"|"ELSEIF"|"ELSE"|"ENDIF"|"CLASS"|"DEFINITION"
+                        |"DEFERRED"|"PUBLIC"|"PROTECTED"|"PRIVATE"|"INHERITING"|"ABSTRACT"|"FINAL"|"ENABLED"|"TESTING"|"RISK"|"LEVEL"|"CRITICAL"|"DANGEROUS"|"HARMLESS"|"DURATION"|"SHORT"|"MEDIUM"|"LONG"|"GLOBAL"|"FRIENDS"|"LOAD"|"IMPLEMENTATION"|"SECTION"|"ENDCLASS"
+                        |"METHOD"|"ENDMETHOD"|"ANY"|"METHODS"|"REDEFINITION"|"IGNORE"|"FAIL"|"PREFERRED"|"ADD"|"THEN"|"UNTIL"|"GIVING"|"ACCORDING"|"ALIASES"|"ASSERT"|"SUBKEY"|"CONDITION"|"ASSIGN"|"COMPONENT"|"INCREMENT"|"FIRST"|"LAST"|"ENDAT"|"BACK"|"CALL"
+                        |"DIALOG"|"SKIP"|"PROCEDURE"|"FLUSH"|"TRANSACTION"|"OPTIONS"|"MESSAGES"|"TRANSFORMATION"|"OBJECTS"|"SOURCE"|"XML"|"AREA"|"BADI"|"CLEAR"|"NULL"|"CLOSE"|"COLLECT"|"COMMIT"|"WORK"|"WAIT"|"COMPUTE"|"CONDENSE"|"CONTROLS"|"TABLEVIEW"|"TABSTRIP"
+                        |"CONVERT"|"SORTABLE"|"STAMP"|"DAYLIGHT"|"SAVING"|"DEMAND"|"CONTEXT"|"DESCRIBE"|"DISTANCE"|"PAGES"|"DETAIL"|"DIVIDE"|"TITLE"|"BACKUP"|"EXIT"|"SQL"|"EXPORT"|"INTERNAL"|"COMPRESSION"|"OFF"|"EXTRACT"|"FIND"|"OCCURRENCE"|"OCCURRENCES"|"SUBSTRING"|"REGEX"
+                        |"MATCH"|"COUNT"|"RESULTS"|"SUBMATCHES"|"COLOR"|"COL_BACKGROUND"|"COL_HEADING"|"COL_NORMAL"|"COL_TOTAL"|"COL_KEY"|"COL_POSITIVE"|"COL_NEGATIVE"|"COL_GROUP"|"INTENSIFIED"|"INVERSE"|"HOTSPOT"|"FRAMES"|"RESET"|"GENERATE"|"SUBROUTINE"|"POOL"|"INCLUDE"
+                        |"GET"|"FILTERS"|"BIT"|"ATTRIBUTES"|"LOCALE"|"COUNTRY"|"MODIFIER"|"EXCLUDING"|"PROPERTY"|"RUN"|"HIDE"|"IMPORT"|"ACCEPTING"|"PADDING"|"TRUNCATION"|"BOUNDARIES"|"DIRECTORY"|"RENAMING"|"FOUND"|"INFOTYPES"|"PERSON"|"INITIALIZATION"|"INSERT"|"VALUES"
+                        |"DUPLICATE"|"KEYS"|"ENTRY"|"ARITHMETIC"|"UNICODE"|"ENABLING"|"INTERFACE"|"ENDINTERFACE"|"INTERFACES"|"PARTIALLY"|"IMPLEMENTED"|"LEAVE"|"LOCAL"|"MINIMUM"|"MODULE"|"ENDMODULE"|"MULTIPLY"|"SCROLLING"|"PRINT"|"NODES"|"OVERLAY"|"ONLY"|"PACK"|"OBLIGATORY"
+                        |"VISIBLE"|"LISTBOX"|"RADIOBUTTON"|"MODIF"|"LOWER"|"MATCHCODE"|"PATTERN"|"PERFORM"|"ROLLBACK"|"RANGES"|"RECEIVE"|"REFRESH"|"CONTROL"|"REJECT"|"REPLACE"|"RESERVE"|"RESUME"|"RETRY"|"SCROLL"|"COLUMN"|"PLACES"|"FORWARD"|"BACKWARD"|"INTERVALS"|"OPTION"
+                        |"SELECTION"|"LOW"|"HIGH"|"TAB"|"BLANK"|"FILE"|"HANDLER"|"INSTANCES"|"MARGIN"|"IMMEDIATELY"|"ANALYZER"|"CLOCK"|"RESOLUTION"|"TITLEBAR"|"SHIFT"|"CIRCULAR"|"DELETING"|"LEADING"|"TRAILING"|"STOP"|"SUBTRACT"|"SUM"|"SUMMARY"|"SUMMING"|"SUPPLY"|"SUPPRESS"
+                        |"SWITCHSTATES"|"DURING"|"TRANSFER"|"TRANSLATE"|"UPPER"|"TRUNCATE"|"ULINE"|"UNASSIGN"|"UNPACK"|"SECONDS"|"ASYNCHRONOUS"|"TASKS"|"MESSAGING"|"CHANNELS"|"PUSH"|"WINDOW"|"SPLIT"|"DIV"|"MOD"|"EQUIV"|"CO"|"CN"|"CA"|"NA"|"CS"|"NS"|"INSTANCE"|"BOUND"|"ASSIGNED"|"SUPPLIED"|"REQUESTED".                           
+    
+    /* do not put keyword those may occur in start of line into this, unless you make sure it will never be used as an identifier
+        only be used by NameInPrimary
+     */
+    AllowedKeywordsExclude =  "DATA" /*DATA(CXX)*/
+    | "REF" /* REF # (XXXX)*/
+    | "VALUE" | "PARAMETER" | "TARGET" | "ID" | "EOF"|"KEY"|"DEFAULT"|"LENGTH"|"DECIMALS"|"BOXED"|"SUFFIX"|"COMPONENTS"|"EXCEPTIONS"|"KIND"|"ACTIVATION"|"SORTED"|"EDIT"|"NODE"|"REPORT"|"NO"|"PAGE"|"HEADING"|"DEFINING"
+    |"DATABASE"|"REDUCED"|"FUNCTIONALITY"|"DISTINCT"|"FROM"|"AS"|"USING"|"CLIENT"|"SPECIFIED"|"INNER"|"LEFT"|"RIGHT"|"OUTER"|"CROSS"|"JOIN"|"ORDER"|"BY"|"PRIMARY"|"ASCENDING"|"DESCENDING"|"APPENDING"|"CORRESPONDING"|"OF"|"PACKAGE"
+    |"SIZE"|"SINGLE"|"FOR"|"ALL"|"ENTRIES"|"IN"|"WHERE"|"GROUP"|"HAVING"|"UNION"|"EXTENDED"|"RESULT"|"CREATING"|"READER"|"LOCATOR"|"COLUMNS"|"OTHER"|"BLOB"|"CLOB"|"OFFSET"|"UP"|"TO"|"ROWS"|"BYPASSING"|"BUFFER"|"CONNECTION"|"ENDWITH"|"EXACT"|"PERCENTAGE"|"EXPANDING"
+    |"NESTED"|"KEEPING"|"INITIAL"|"ASSIGNING"|"CASTING"|"REFERENCE"|"CHARACTER"|"BYTE"|"MODE"|"SEPARATED"|"RESPECTING"|"BLANKS"|"STARTING"|"ENDING"|"ABBREVIATED"|"AND"|"MARK"|"EVENT"|"EXPORTING"|"RESUMABLE"|"EXCEPTION"|"NUMBER"|"DISPLAY"|"LIKE"|"RAISING"
+    |"TEXT"|"WITHOUT"|"MEMBERS"|"TRANSPORTING"|"VERSION"|"SCREEN"|"LOB"|"HANDLE"|"HASHED"|"EMPTY"|"HEADER"|"UNIQUE"|"PRIMARY_KEY"|"ALIAS"|"RANGE"|"STATICS"|"BEGIN"|"COMMON"|"PART"|"OCCURS"|"VALID"|"BETWEEN"|"IS"|"UNDER"|"CENTERED"|"EXPONENT"|"CURRENCY"|"ROUND"
+    |"UNIT"|"ENVIRONMENT"|"TIME"|"ZONE"|"STYLE"|"MASK"|"DDMMYY"|"MMDDYY"|"YYMMDD"|"CHECKBOX"|"ICON"|"SYMBOL"|"QUICKINFO"|"WHEN"|"OR"|"OTHERS"|"FIELD"|"DUMMY"|"OBJECT"|"USER"|"DATASET"|"ADJACENT"|"DUPLICATES"|"COMPARING"|"MEMORY"|"SHARED"|"VARYING"|"NEXT"
+    |"TIMES"|"OPTIONAL"|"CURRENT"|"CHANGE"|"CURSOR"|"HOLD"|"OUTPUT"|"BINARY"|"ENCODING"|"SKIPPING"|"NATIVE"|"SMART"|"UNIX"|"WINDOWS"|"LINEFEED"|"LEGACY"|"BIG"|"LITTLE"|"ENDIAN"|"CODE"|"FILTER"|"IGNORING"|"CONVERSION"|"ERRORS"|"REPLACEMENT"|"BOUNDS"|"INCLUDING"
+    |"GAPS"|"ACTUAL"|"WIDTH"|"TEXTPOOL"|"LANGUAGE"|"VIA"|"EQ"|"NE"|"CP"|"NP"|"GE"|"LT"|"LE"|"GT"|"SELECTIONS"|"LIST"|"SPOOL"|"ARCHIVE"|"DYNPRO"|"JOB"|"BEFORE"|"UNWIND"|"CLEANUP"|"ASSOCIATION"|"ENUM"|"STRUCTURE"|"BASE"|"MESH"|"VARY"|"TASK"
+    |"NEW"|"BACKGROUND"|"SEPARATE"|"DESTINATION"|"CALLING"|"PERFORMING"|"IMPORTING"|"ELSE"|"DEFINITION"|"DEFERRED"|"PUBLIC"|"PROTECTED"|"PRIVATE"|"INHERITING"|"ABSTRACT"|"FINAL"|"ENABLED"|"TESTING"|"RISK"|"LEVEL"|"CRITICAL"|"DANGEROUS"|"HARMLESS"
+    |"DURATION"|"SHORT"|"MEDIUM"|"LONG"|"GLOBAL"|"FRIENDS"|"LOAD"|"IMPLEMENTATION"|"SECTION"|"REDEFINITION"|"IGNORE"|"FAIL"|"PREFERRED"|"RETURNING"|"THEN"|"UNTIL"|"GIVING"|"ACCORDING"|"SUBKEY"|"CONDITION"|"COMPONENT"|"INCREMENT"
+    |"FIRST"|"LAST"|"DIALOG"|"PROCEDURE"|"FLUSH"|"TRANSACTION"|"OPTIONS"|"MESSAGES"|"TRANSFORMATION"|"OBJECTS"|"SOURCE"|"XML"|"AREA"|"BADI"|"NULL"|"WORK"|"TABLEVIEW"|"TABSTRIP"|"SORTABLE"|"STAMP"|"DAYLIGHT"|"SAVING"|"CONTEXT"|"DISTANCE"|"PAGES"|"TITLE"|"BACKUP"
+    |"SQL"|"INTERNAL"|"COMPRESSION"|"OFF"|"OCCURRENCE"|"OCCURRENCES"|"SUBSTRING"|"REGEX"|"MATCH"|"COUNT"|"RESULTS"|"SUBMATCHES"|"COLOR"|"COL_BACKGROUND"|"COL_HEADING"|"COL_NORMAL"|"COL_TOTAL"|"COL_KEY"|"COL_POSITIVE"|"COL_NEGATIVE"|"COL_GROUP"|"INTENSIFIED"|"INVERSE"|"HOTSPOT"
+    |"FRAMES"|"RESET"|"SUBROUTINE"|"POOL"|"FILTERS"|"BIT"|"ATTRIBUTES"|"LOCALE"|"COUNTRY"|"MODIFIER"|"EXCLUDING"|"PROPERTY"|"RUN"|"ACCEPTING"|"PADDING"|"TRUNCATION"|"BOUNDARIES"|"DIRECTORY"|"RENAMING"|"FOUND"|"PERSON"|"VALUES"|"DUPLICATE"|"KEYS"|"ENTRY"|"ARITHMETIC"|"UNICODE"
+    |"ENABLING"|"PARTIALLY"|"IMPLEMENTED"|"SCROLLING"|"PRINT"|"ONLY"|"OBLIGATORY"|"VISIBLE"|"LISTBOX"|"RADIOBUTTON"|"MODIF"|"LOWER"|"MATCHCODE"|"PATTERN"|"CONTROL"|"COLUMN"|"PLACES"|"FORWARD"|"BACKWARD"|"INTERVALS"|"OPTION"|"SELECTION"|"LOW"|"HIGH"
+    |"TAB"|"BLANK"|"FILE"|"HANDLER"|"INSTANCES"|"MARGIN"|"IMMEDIATELY"|"ANALYZER"|"CLOCK"|"RESOLUTION"|"TITLEBAR"|"CIRCULAR"|"DELETING"|"LEADING"|"TRAILING"|"SWITCHSTATES"|"DURING"|"UPPER"|"SECONDS"|"ASYNCHRONOUS"|"TASKS"|"MESSAGING"|"CHANNELS"|"PUSH"|"DIV"|"MOD"|"EQUIV"|"CO"|"CN"|"CA"|
+    "NA"|"CS"|"NS"|"INSTANCE"|"BOUND"|"ASSIGNED"|"SUPPLIED"|"REQUESTED"|"LINES". 
+    
+    AllowedKeywords =  AllowedKeywordsForTypeName  | "SORTED" | "STANDARD" | "REF" | "CHECK" | "EDIT" | "NODE" | "TYPE". 
+    
+    TypeName = ( (identifier|AllowedKeywordsForTypeName)|("("(string1|identifier|AllowedKeywordsForTypeName)")") ) {"=>" ( (identifier|AllowedKeywordsForTypeName)|("("(identifier|AllowedKeywordsForTypeName)")") ) } (. name=fixName(src()).)
+                            (.  
+                                             src(name)
+                              .)
+                                .
+
+
+   /* Var = Name (.re(fixName(prevString())).) | "DATA" "(" Name ")" (.src(lus).)| "FIELD-SYMBOL" "(" Name ")" (.src(lus).).*/
+   Var = Expression.
+    
+    Exps =  Expression{Expression} .
+    
+    NameInVarDef =  (identifier|AllowedKeywords|"REFERENCE")  (. name=fixName(src()).)
+                            (.  
+                                             src(name)
+                              .)
+                                .
+         
+/*    FullName = Name {"=>" Name} .*/
+                           
+    Name = (
+                (identifier|AllowedKeywords)
+            | 
+               ("("(identifier|AllowedKeywords)")")
+     
+           )  (. name=fixName(src()).)
+                            (.  
+                                                   
+                                                         name = procName(name)
+                                                         src(name)
+                              .)
+                                .
+  /*  Name = ((identifier|AllowedKeywords) | ("("(identifier|AllowedKeywords)")") ) (. src(fixName(src())).).*/
+    
+    /* in case: keyword = xxx.
+    have to exclude those keyword can be in start of line
+    */
+    NameInPrimary = (.no_comments.)((identifier|AllowedKeywordsExclude) | ("("(identifier|AllowedKeywordsExclude)")") ) (. name=fixName(src()).)
+                            (.  
+                                                        #  name = lus
+                                                          ar = name.split(".")
+                                                          tail = ""
+                                                          tail = "."+ar[1..ar.size-1].join(".") if ar.size>1
+                                                          v = find_var(ar[0])
+                                                         p "find:#{name}:#{v.inspect}"
+                                                         if v
+                                                            name  = v.newname+tail
+                                                         else
+                                                          #  current_scope.pre += "#{name}=nil\n"
+                                                         #   current_scope.add_var(name, nil)
+                                                         end
+                                
+                                                         src(name)
+                              .)
+    .
+    
+    C                  =      (.in_scope(@root_class).){ ReportDef | FunctionDef | ClassStatement | stINTERFACE | stTYPE_POOL}.
+    
+    stTYPE_POOL = "TYPE-POOL" identifier (.
+        n = prevString
+        clsdef = ModuleDef.new(n)
+        current_ruby_scope.add_module(clsdef)
+        clsdef.add_src("#{n}=#{to_ruby_const(n)}\nmodule_function\n")
+    .)     "." 
+
+(.in_scope(clsdef).)
+  {
+      stTYPES |  VariableDefineStatement 
+  } 
+  (.out_scope.)
+     .
+    
+    ReportDef          = "REPORT" (.  fn_name=curString() .) identifier  (. src("") .) 
+            {
+               ["NO" "STANDARD" "PAGE" "HEADING"] 
+               ["LINE-SIZE" number] 
+               ["LINE-COUNT" number["("number")"]] 
+               ["MESSAGE-ID" identifier] 
+               ["DEFINING" "DATABASE" identifier] 
+               ["REDUCED" "FUNCTIONALITY"] 
+           }
+               "."
+    {Statement}
+                       (.
+                         @root_class.add_method(fn_name, "()", [], src, "")
+                       .)
+                    /*EOF*/ .
+
+    FunctionDef = "FUNCTION" (.  fn_name=curString() .) identifier "."  (. src("") .) 
+                    {Statement}
+                  (.
+                             @root_class.add_method(fn_name, "()", [], src, "")
+                  .)
+                    "ENDFUNCTION" "." .
+
+    Type = identifier .
+
+
+  Statement            = 
+  (. ps() .)
+  
+                         (
+                              VariableDefineStatement
+                             | WriteStatement 
+                             | AssignmentStatement 
+                          /*   | BreakStatement*/
+                             | ContinueStatement
+                             | stDO
+                             | ForStatement
+                             | IfStatement  
+                             | NullStatement
+                             |  ReturnStatement 
+                             |  stWHILE 
+                             |  LoopStatement 
+                             |  CaseStatement
+                             |  stCALL
+                             | (
+                                  ClassStatement
+                                 /* | ClassImplStatement*/
+                                )
+                             | MethodStatement
+                             | MethodsStatement
+                             | FunctionDef
+                             /*| DescribeStatement*/
+                             | MessageStatement
+                            /* | RefreshStatement */
+                             | SearchStatement
+                             | stAPPEND
+                             | stSPLIT
+                             | stRAISE
+                            /* | stCONSTANTS*/
+                             | stMOVE
+                             | stMOVE_CORRESPONDING
+                             | stWITH
+                             | stTABLES
+                             | stAUTHORITY_CHECK
+                             | stDELETE
+                             | stEVENTS
+                             | stMODIFY
+                             | stON
+                             | stOPEN
+                             | stFETCH
+                             | stPROVIDE
+                             | stREAD
+                             | stSORT
+                             | stSUBMIT
+                             | stTRY
+                       /*    | STRUCTURE
+                             | stTYPE
+                             | stUPDATE*/
+                             | stADD
+                             | stADD_CORRESPONDING
+                             | stALIASES
+                             | stASSERT
+                             | stASSIGN
+                             | stAT
+                            /* |AT*/
+                             | stBACK
+                             | stBREAK_POINT
+                            /* | stCATCH*/
+                             | stCHECK
+                             /*| stCLASS_DATA*/
+                             | stCLASS_EVENTS
+                             | stCLASS_POOL
+                             | stCLEAR
+                             | stCLOSE
+                             | stCOLLECT
+                             | stCOMMIT
+                           /* | COMMUNICATION*/
+                             | stCOMPUTE
+                             | stCONCATENATE
+                             | stCONDENSE
+                             | stCONTROLS
+                             | stCONVERT
+                             | stCREATE
+                             | stDEMAND
+                             | stDESCRIBE
+                             | stDETAIL
+                             | stDIVIDE
+                             | stDIVIDE_CORRESPONDING
+                             | stEDITOR_CALL
+                             | stEND_OF_PAGE
+                             | stEND_OF_SELECTION
+                             | stEXIT
+                             | stEXPORT
+                             | stEXTRACT
+                             | stFIELD_GROUPS
+                             | stFIELD_SYMBOLS
+                             | stFIELDS
+                             | stFIND
+                             | stFORMAT
+                             | stFREE
+                             | stFUNCTION_POOL
+                             | stGENERATE
+                             | stGET
+                             | stHIDE
+                             | stIMPORT
+                             | stINCLUDE
+                             | stINFOTYPES
+                             | stINITIALIZATION
+                             | stINPUT
+                             | stINSERT
+                             | stINTERFACE
+                             | stINTERFACE_POOL
+                             | stINTERFACES
+                             | stLEAVE
+                             | stLOAD_OF_PROGRAM
+                             | stLOCAL
+                             | stLOG_POINT
+                             | stMAXIMUM
+                             | stMINIMUM
+                             | stMODULE
+                             | stMULTIPLY
+                             | stMULTIPLY_CORRESPONDING
+                             | stNEW_LINE
+                             | stNEW_PAGE
+                             | stNEW_SECTION
+                             | stNODES
+                             | stOVERLAY
+                             | stPACK
+                             | stPARAMETERS
+                             | stPERFORM
+                             | stPOSITION
+                             | stPRINT_CONTROL
+                             | stPROGRAM
+                             | stRANGES
+                             | stRECEIVE
+                             | stREFRESH
+                             | stREJECT
+                             | stREPLACE
+                             | stRESERVE
+                             | stRESUME
+                             | stRETRY
+                             | stRETURN
+                             | stROLLBACK
+                             | stSCROLL
+                             | stSELECT_OPTIONS
+                             | stSELECTION_SCREEN
+                             | stSET
+                             | stSHIFT
+                             | stSKIP
+                             | stSTOP
+                             | stSUBTRACT
+                             | stSUBTRACT_CORRESPONDING
+                             | stSUM
+                             | stSUMMARY
+                             | stSUMMING
+                             | stSUPPLY
+                             | stSUPPRESS
+                             | stSYNTAX_CHECK
+                             | stTEST_INJECTION
+                             | stTEST_SEAM
+                             | stTOP_OF_PAGE
+                             | stTRANSFER
+                             | stTRANSLATE
+                             | stTRUNCATE
+                             | stTYPE_POOL
+                             | stTYPE_POOLS
+                             | stTYPES
+                             | stULINE
+                             | stUNASSIGN
+                             | stUNPACK
+                             | stUPDATE
+                             | stWAIT
+                             | stWINDOW
+                             | stSELECT
+                             | stENDSELECT
+                         )
+                           
+ .
+ stENDSELECT = "ENDSELECT" "." .
+ 
+ sqlFields = ["FIELDS"] ["DISTINCT"]
+                   {( "*" 
+                    | sqlColumn{","sqlColumn}
+                    | "("identifier")" 
+                    )} .
+  sqlFrom =     "FROM" (
+                 identifier ["AS" identifier] 
+                | 
+                    ["("]
+                    (
+                      identifier ["AS" identifier]
+                      | sqlJoin 
+                    )
+                    [")"] 
+                  
+                | "("identifier")" ["AS" identifier] 
+                ) 
+                [ 
+                    ( 
+                        "USING" "CLIENT" identifier
+                    | 
+                        "CLIENT" "SPECIFIED" [identifier"~"identifier{","identifier"~"identifier}] 
+                    )
+                ] 
+                .            
+ sqlColumn = ( identifier ["~*" {"," identifier"~*"} ]| "aggregate" "("["DISTINCT"] identifier ")"| Expression) ["AS" identifier] .
+ 
+ sqlJoin = (["INNER"] | ("LEFT"|"RIGHT") ["OUTER"] |"CROSS" ) "JOIN" identifier ["AS" identifier] ["ON" Expression] .
+ sqlOrderBy = "ORDER" "BY"
+                 ( 
+                     "PRIMARY" "KEY" 
+                 |
+                     identifier ["ASCENDING"|"DESCENDING"]{"," identifier ["ASCENDING"|"DESCENDING"]} 
+                 
+                 | 
+                     "("identifier")" 
+                 ).
+sqlInto = ("INTO" | "APPENDING" )
+            (
+         
+                     (
+                             ["CORRESPONDING" "FIELDS" "OF"] ["TABLE"] identifier ["PACKAGE" "SIZE" Expression]  
+                         |
+                            "(" identifier{"," identifier} ")"
+                     )
+                 |    
+                     "@DATA""("identifier")" 
+                 | 
+                     "TABLE" "@DATA""("identifier")" ["PACKAGE" "SIZE" Expression]                        
+           ) 
+   
+       .         
+stSELECT = "SELECT" ["SINGLE" ["FOR" "UPDATE"]] 
+         
+        ( sqlFields sqlFrom | sqlFrom sqlFields )
+        {
+       [["FOR" "ALL" "ENTRIES" "IN" identifier] ["WHERE" SQLCondition] ]
+       ["GROUP" "BY" (identifier| Expression){","identifier| Expression}|"("identifier")"] 
+       ["HAVING" SQLCondition] 
+       ["UNION" ("ALL"|"DISTINCT") stSELECT] 
+       [sqlOrderBy]
+       [sqlInto]
+       [ "EXTENDED" "RESULT" "@"identifier ] 
+       [ "CREATING" 
+                      (
+                          ("READER"|"LOCATOR") "FOR"  
+                               (
+                                   "COLUMNS" identifier{identifier}  
+                                 | 
+                                   "ALL" ["OTHER"] ["BLOB"|"CLOB"] "COLUMNS"
+                               ) 
+                    
+                    |  
+                         "("identifier")" 
+                    )
+        ] 
+       ["OFFSET" Expression] 
+       ["UP" "TO" Expression "ROWS"] 
+       ["BYPASSING" "BUFFER"] 
+       ["CONNECTION" Expression]
+   }
+        "."
+    { Statement }
+["ENDSELECT" "."] 
+.
+
+Withline =  "+" identifier [( identifier {"," identifier} )] "AS" identifier {"," "+" identifier [( identifier {"," identifier} )] "AS" identifier}
+   stSELECT "." . 
+
+stWITH = "WITH" 
+  Withline { Withline }
+ 
+"ENDWITH".
+ 
+ 
+stTABLES = "TABLES" ["*"] identifier "." . 
+
+ 
+stMOVE =  "MOVE" 
+          ["EXACT"] Expression  ["TO"|"?TO"] Expression
+     [  "PERCENTAGE" Expression ["LEFT"|"RIGHT"] ]
+        
+    . 
+    
+stMOVE_CORRESPONDING = "MOVE-CORRESPONDING"  ["EXACT"]
+             ( Var(.cp[:o]=lus.) "TO" Var (.cp[:to]=lus.)["EXPANDING" "NESTED" "TABLES"] 
+            |  Var (.cp[:o]=lus.) "TO" Var (.cp[:to]=lus.) ["EXPANDING" "NESTED" "TABLES"] 
+                                                  ["KEEPING" "TARGET" Var] 
+             ) "."
+             (.
+                make()
+            .)
+              . 
+ 
+stAPPEND = "APPEND" (. params = {} .) ( 
+         "INITIAL" "LINE" 
+        | Expression (.#'LINES' or idf .) (.params[:from]=lus.) ["OF" identifier ["FROM" number ["TO" number]] ["USING" "KEY" string1]]
+        )
+    "TO" Name(.params[:to]=lus.)  {"[""]"} 
+    ["SORTED" "BY" string1] 
+    [ ("ASSIGNING" Var ["CASTING"] | "REFERENCE" "INTO" identifier ) ] "."
+    (.
+        
+        src("append(#{hash_to_params(params)})\n")
+        
+    .)
+    
+     .
+ 
+stCONCATENATE = "CONCATENATE" (.params={:ar=>[]}.)
+             ( 
+                 Expression (. params[:ar].push(lus).) {Expression(. params[:ar].push(lus).)}
+                 |
+                 "LINES" "OF" identifier
+             )
+             "INTO" Var (. params[:into]=lus.) 
+             ["IN" ("CHARACTER"|"BYTE") "MODE"] 
+             ["SEPARATED" "BY" Name] 
+             ["RESPECTING" "BLANKS"] "."
+             
+             (.
+                 src("concatenate(#{hash_to_params(params)})\n")
+             .)
+             .
+ 
+SearchStatement = "SEARCH" identifier "FOR" string1 
+      ["IN" ("CHARACTER"|"BYTE") "MODE"] 
+      ["STARTING" "AT" Expression] ["ENDING" "AT" Expression] 
+      ["ABBREVIATED"] 
+      ["AND" "MARK"] "." . 
+/*
+RefreshStatement = "REFRESH" ("CONTROL" identifier "FROM" "SCREEN" identifier
+ | identifier["[""]"] ["FROM" "TABLE" identifier] ).
+ 
+
+
+DescribeStatement = "DESCRIBE" (
+          ( "FIELD" identifier 
+          ["TYPE" identifier ["COMPONENTS" identifier]] 
+          ["LENGTH" Expression "IN" {"BYTE"|"CHARACTER"} "MODE"] 
+          ["DECIMALS" string1] 
+          ["OUTPUT-LENGTH" number] 
+          ["HELP-ID" identifier] 
+          ["EDIT" "MASK" identifier]
+          )
+        | ("DISTANCE" "BETWEEN" identifier "AND" identifier "INTO" identifier 
+                          "IN" {"BYTE"|"CHARACTER"} "MODE" )
+
+        | ("LIST" { {"NUMBER" "OF" {"LINES"|"PAGES"} number} 
+              | {"LINE" number "PAGE" number} 
+              | {"PAGE" number ["LINE-SIZE" number] 
+                            ["LINE-COUNT" number] 
+                            ["LINES" number] 
+                            ["FIRST-LINE" number] 
+                            ["TOP-LINES" number] 
+                            ["TITLE-LINES" number] 
+                            ["HEAD-LINES" number] 
+                            ["END-LINES" number]} } 
+              ["INDEX" identifier]
+              )
+        | ( "TABLE" identifier ["KIND" identifier] ["LINES" number] ["OCCURS" number] )
+        )
+        "." . */
+
+stRAISE = "RAISE"
+     (
+              "EVENT" identifier ["EXPORTING" Expression {Expression}]
+          |
+              ["RESUMABLE"] "EXCEPTION" 
+              [  
+                  ( "TYPE" identifier (.exp_type=prevString.)
+                      [ 
+                          "MESSAGE" identifier "(" identifier ")" 
+                          | { "ID" identifier "TYPE" identifier "NUMBER" Expression }   ["WITH" identifier {identifier} ]
+                      ] 
+                     ["EXPORTING" Expression {Expression}] 
+       
+                 | identifier
+                 )
+             ]  (.src("raise #{exp_type}.new\n").)
+          |
+              identifier  (.src("raise #{prevString}\n").)
+     )
+   
+.
+
+MessageStatement = "MESSAGE"
+         {
+             (  
+                 ( "ID" identifier "TYPE" identifier "NUMBER" number )
+                | (string1 "TYPE" identifier)
+                | ( identifier [ ( "(" identifier ")" | (  "TYPE" identifier) ) ] )
+             )
+         } 
+        [(
+                (["DISPLAY" "LIKE" identifier] ["RAISING" identifier] )
+            | 
+                ("INTO" Name)
+        )]
+        ["WITH" identifier {identifier}] "." . 
+
+
+GroupBy = "GROUP" "BY" ( 
+                        ( Expression {Expression} [ identifier "=" "GROUP" "SIZE"] [ identifier "=" "GROUP" "INDEX"]) 
+                        |identifier
+                       )
+                            [("ASCENDING"|"DESCENDING") ["AS" "TEXT"]] 
+                            ["WITHOUT" "MEMBERS"] 
+                            [ 
+                                "INTO" identifier 
+                              | "ASSIGNING" identifier
+                              | "REFERENCE" "INTO" identifier
+                            ] .
+                            
+LoopStatement = "LOOP" (.params = {};stmts ="".)
+         [ 
+            "AT" ( 
+                  (
+                     (
+                       Expression (.params[:at]=lus.) [( 
+                                   "INTO" Expression  (.params[:into]=lus.)
+                                 |  "ASSIGNING" Var ["CASTING"] 
+                                 |  "REFERENCE" "INTO" Expression (.params[:into]=lus.)
+                                 |  "TRANSPORTING" "NO" "FIELDS" 
+                                  )]
+                          [ "USING" "KEY" (identifier|"("identifier")" )] 
+                          [ "FROM" identifier]
+                          ["TO" identifier]
+                          ["WHERE" LogExp ] 
+                          [ GroupBy ]
+                     )
+                    | Expression ["VERSION" string1]  
+                  )
+                |
+                 "GROUP" Expression ( 
+                               "INTO" identifier  
+                             |  "ASSIGNING" identifier ["CASTING"] 
+                             |  "REFERENCE" "INTO" identifier 
+                             |  "TRANSPORTING" "NO" "FIELDS" 
+                              )
+                                   ["WHERE" LogExp] 
+                                   [GroupBy]
+                | "SCREEN" "INTO" identifier
+               )
+         ] "." 
+            {Statement (. stmts += lus+"\n" .)}
+        "ENDLOOP" "." 
+        
+        (.
+            src("loop(#{hash_to_params(params)}){\n#{stmts}}\n")
+            
+        .)
+        .
+
+TypeDes = "TYPE"  
+            (
+                     ["LINE" "OF"]     TypeName  (.ret = VarType.new(lus.strip).) (
+                                             ["LENGTH" Expression] ["DECIMALS" number] 
+                                         |
+                                              ( "READER"|"LOCATOR"|"LOB" "HANDLE" )
+                                         |
+                                               /* identifier(.is('WRITER','LOCATOR').)*/ "FOR" ( "COLUMNS" identifier{identifier} ) 
+                                    )["BOXED"]
+                      
+                      | 
+                          "REF" "TO" (Expression|"DATA") (.ret = VarType.new(lus.strip).)
+                      | 
+                          [ ("STANDARD" | "SORTED"| "HASHED") ] "TABLE" 
+                       
+                          "OF" ["REF" "TO"] TypeName(.ret = VarType.new(lus.strip).)
+                          {
+                              "WITH"
+                              (
+                                      "EMPTY" "KEY"
+                                  |
+                                      "HEADER" "LINE"
+                                  |
+                                      [("UNIQUE"|"NON-UNIQUE")] ["HASHED"|"SORTED"]
+                                      (
+                                            "KEY" ["PRIMARY_KEY" ["ALIAS" Name] "COMPONENTS"] Name {Name}
+                                          | 
+                                              "DEFAULT" "KEY" 
+                                      )
+                              )
+                          
+                          }
+                          ["INITIAL" "SIZE" number] 
+                     |
+                          "RANGE" "OF" Type (.ret = VarType.new(lus.strip).)  ["INITIAL" "SIZE" number] ["WITH" "HEADER" "LINE"] 
+                     |  
+                         "ALL" ["OTHER"] ["BLOB"|"CLOB"] "COLUMNS" 
+            )
+              (. @lnv = ret .)   .
+                 
+LikeDes =        "LIKE" 
+                  (
+                         ["LINE" "OF"] TypeName
+                     | 
+                         "REF" "TO" TypeName
+                     |  
+                         [ ("STANDARD" | "SORTED"| "HASHED") ] "TABLE" 
+                         "OF" ["REF" "TO"] TypeName
+                         [
+                          
+                                  "WITH" ["UNIQUE"|"NON-UNIQUE"] 
+                                   {
+                                    "KEY" ["PRIMARY_KEY" ["ALIAS" Name] "COMPONENTS"] Name{Name} 
+                                   |
+                                    "DEFAULT" "KEY"
+                                   }
+                          
+                              | "WITH" "EMPTY" "KEY"
+                         ] 
+                         {
+                              
+                              "WITH" {"UNIQUE" "HASHED"}
+                              |
+                              {
+                                  {"UNIQUE"|"NON-UNIQUE"} "SORTED"
+                                }
+                                "KEY" identifier "COMPONENTS" {identifier}
+                            
+                         } 
+                         ["INITIAL" "SIZE" number] 
+                         ["WITH" "HEADER" "LINE"]
+                    
+                      |  
+                     "RANGE" "OF" Type (.ret = VarType.new(lus.strip).) ["INITIAL" "SIZE" number] ["WITH" "HEADER" "LINE"]
+                                         
+                   ).
+ 
+VariableDefineStatement =  ("DATA"|"STATICS" | "CLASS-DATA" | "CONSTANTS" ) (.t=prevString.upcase.) 
+            (
+                    ( 
+                        "BEGIN" "OF" ( "COMMON" "PART" NameInVarDef | NameInVarDef (.modname=lus.) ["READ-ONLY"] ["OCCURS" number] )
+                        (. 
+                            if t == "CONSTANTS"
+                  
+                                    current_ruby_scope.add_src("module #{to_ruby_const(modname)}\nmodule_function\n")
+                            elsif t == "DATA"
+                                    in_scope("struct")
+                                    src("#{modname} = Struct.new(")
+                            end
+                        .)
+                        |
+                        "END" "OF" ("COMMON" "PART" NameInVarDef | NameInVarDef ["VALID" "BETWEEN" Expression "AND" Expression] )
+                        (.
+                            #out_scope
+                            if t == "DATA"
+                                if current_scope.name == "struct"
+                                    src(").new\n")
+                                    out_scope
+                                end
+                            else
+                                current_ruby_scope.add_src("end\n")
+                            end
+                        .)
+                        | 
+                        NameInVarDef (.name = lus
+                            p "var name=#{name}"
+                            if t == "DATA" && current_scope.name == "struct"
+                                src(":#{name}")
+                            end
+                            .){ "(" number  ")" } 
+                    
+                             ( TypeDes (. var_type = @lnv 
+                                 p "var_type:#{var_type.inspect}"
+                                 .)| LikeDes)
+                             
+                    )
+                    { 
+                        ["VALUE" (.value = nil.){  Expression (. value = "" if value ==nil;value += lus.)| "IS" "INITIAL" (.back_src();re(".init()").) }] 
+                        ["READ-ONLY"]
+                        ["OCCURS" number
+                              ["WITH" "HEADER" "LINE"]]
+                    }                
+            
+                    (.
+                        # add constants to module
+                        if current_ruby_scope.is_a?(ModuleDef) && t == "CONSTANTS"
+                            if name
+                                newname = current_ruby_scope.add_var(Variable.new(name, var_type)) # just for getting new name
+                                current_ruby_scope.add_src("#{newname} = #{value}\n")
+                                current_ruby_scope.add_src("def #{name};#{value};  end\n")
+                        
+                            end
+                        elsif !(t == "DATA" && current_scope.name == "struct") && name
+                            current_scope.add_var(Variable.new(name, var_type)) 
+                    
+                            if var_type
+                               # s = "#{name} = #{var_type.name}.new\n"
+                                 s = "#{name} = nil \# #{var_type.name}.new\n"
+                              #  src("#"+s)
+                                src(s)
+                                if current_scope.is_a?(ClassDef)
+                                    s = "@#{name} = nil \# #{var_type.name}.new\n"
+                                    current_scope.add_src(s)
+                                end
+                            else
+                                src("")
+                            end
+                        end
+            
+                    .)
+                |
+                
+                     "(" identifier (.name=prevString.)")" "=" Expression (.src("#{name} = #{lus}").)      
+                
+             )
+     "."
+             .
+                    
+
+
+             /*
+stCONSTANTS = "CONSTANTS" identifier ( TypeDes | 
+               LikeDes
+                ) "VALUE" { Expression | "IS" "INITIAL"(.back();re(".init()").) } "." .*/
+
+
+WriteStatement =   (. param_hash = {} .) "WRITE" 
+    (
+        {["AT"] ["/"][number 
+         (. param_hash["col"] = curString().to_i .)
+         ][ "(" (Expression | "*" | "**") ")" ]} [Expression] 
+         (.
+             param_hash["s"] = lus
+         .)
+          {
+              ["UNDER" identifier] 
+              ["NO-GAP"] 
+              ["LEFT-JUSTIFIED"|"CENTERED"|"RIGHT-JUSTIFIED"] 
+              { 
+    
+                  ["EXPONENT" Expression] 
+                  ["NO-GROUPING"] 
+                  ["NO-SIGN"] 
+                  ["NO-ZERO"] 
+                  ["CURRENCY" string1] 
+                  { 
+                       ["DECIMALS" string1] ["ROUND" number]  
+                    | ["UNIT" string1] 
+                    } 
+     
+                | { ["ENVIRONMENT" "TIME" "FORMAT"] 
+                    ["TIME" "ZONE" string1] } 
+                ["STYLE" string1] 
+              } 
+              ["USING" { "NO" "EDIT" "MASK"| "EDIT" "MASK" string1}] 
+              ["DD/MM/YY"|"MM/DD/YY"|"DD/MM/YYYY"|"MM/DD/YYYY"|"DDMMYY"|"MMDDYY"|"YYMMDD"] 
+              Format_options
+              { 
+                  "AS" ("CHECKBOX" | "ICON" | "SYMBOL"  | "LINE")
+              } 
+              ["QUICKINFO" string1] 
+          }
+          |
+  
+            (identifier|"("identifier")") "TO" identifier 
+          ["LEFT-JUSTIFIED"|"CENTERED"|"RIGHT-JUSTIFIED"] 
+          ( ( ["EXPONENT" Expression] 
+              ["NO-GROUPING"] 
+              ["NO-SIGN"] 
+              ["NO-ZERO"] 
+              ["CURRENCY" string1] 
+              ( ( ["DECIMALS" number] 
+                  ["ROUND" number] ) 
+                | ["UNIT" string1] ) ) 
+            | ( ["ENVIRONMENT" "TIME" "FORMAT"] 
+                ["TIME" "ZONE" string1] ) 
+            ["STYLE" string1] ) 
+          ["USING" ( ("NO" "EDIT" "MASK")|("EDIT" "MASK" identifier) )] 
+          ["DD/MM/YY"|"MM/DD/YY"|"DD/MM/YYYY"|"MM/DD/YYYY"|"DDMMYY"|"MMDDYY"|"YYMMDD"] 
+    )  
+    "." 
+  (.
+  
+  params = []
+  param_hash.each{|k,v|
+      params.push "#{k}: #{v}"
+  }
+  src("write(#{params.join(", ")})\n")
+  .)
+  . 
+
+  AssignmentStatement =  Expression (.add_src("\n").) .
+ /*
+ BreakStatement       = "break"   .*/
+
+
+  Statements =  Statement { Statement } .
+
+  ContinueStatement    = "CONTINUE"  "." (.src("next\n").) .
+
+/*
+  DoStatement          = "DO" [number "TIMES"] {"VARYING" identifier "FROM" identifier "NEXT" identifier ["RANGE" number] } "." 
+  {Statement}
+"ENDDO" "." .
+*/
+
+CaseStatement = 
+    "CASE"(. re("case") .) Expression "." 
+      {
+          "WHEN" (. re("when");ar=[] .) (Expression (.ar.push(lus).) {"OR"(.re(",").) Expression(.ar.push(lus).) } | "OTHERS" (. re("", "else").)) "." 
+            {Statement}
+      } 
+  
+    "ENDCASE" (. re("end") .) "." .
+
+AUTHORITY_CHECK_ITEM = "ID" identifier ("FIELD" Expression|"DUMMY") .
+
+stAUTHORITY_CHECK = "AUTHORITY-CHECK" "OBJECT" identifier ["FOR" "USER" string1] 
+                     AUTHORITY_CHECK_ITEM { AUTHORITY_CHECK_ITEM }
+                      "." .
+                      
+stDELETE = "DELETE"(  
+                    "DATASET" identifier 
+                |
+                    ( 
+                        ( 
+                                "FROM" Expression ["USING" "CLIENT" identifier] 
+                            | 
+                                [ identifier|"(" Expression ")" ] ["CLIENT" "SPECIFIED"] ["CONNECTION" ("("Expression")"| identifier)] ["USING" "KEY" ["("] identifier [")"]] ["FROM" identifier] ["TO" identifier] ["WHERE" LogExp] ["ORDER" "BY" identifier{"," identifier} ["OFFSET" number]] ["UP" "TO" number "ROWS"] 
+                        ) 
+                       |
+                            "TABLE" identifier 
+                       /*|
+                            ( ( identifier|"(" Expression ")") ["CLIENT" "SPECIFIED"] ["CONNECTION" ("("Expression")"| identifier)] ) 
+                            "FROM" identifier */
+                    ) 
+                |  
+                  ( 
+                        (
+                                (
+                                    "TABLE" identifier 
+                                    (
+                                        ("FROM" identifier ["USING" "KEY" (identifier|"("identifier")")]) 
+                                      |
+                                        ("WITH" "TABLE" "KEY" [(identifier|"("identifier")")"COMPONENTS"] 
+                                        ["("] identifier [")"] "=" identifier 
+                                        )
+                                    )
+                                )
+                            | 
+                                (identifier ["INDEX" identifier] ["USING" "KEY" ["("] identifier [")"]]) 
+                        ) 
+                    |
+                        (    
+                            ("ADJACENT" "DUPLICATES" "FROM" identifier [ "USING" "KEY" ["("] identifier [")"]] 
+                                                   ["COMPARING" identifier |("ALL" "FIELDS")])
+                           /* |
+                            identifier ["USING" "KEY" ["("] identifier [")"]] ["FROM" identifier] ["TO" identifier] ["WHERE" ["("] Expression [")"]] */
+                        )
+                    |
+                        "FROM" 
+                           (
+                            ("MEMORY" "ID" number) 
+                            | ("DATABASE"      identifier"("identifier")" ["CLIENT" identifier] "ID" number) 
+                            | "SHARED"(
+                                 ( "MEMORY" identifier"("identifier")" ["CLIENT" identifier] "ID" number) 
+                                 | ( "BUFFER" identifier"("identifier")" ["CLIENT" identifier] "ID" number)
+                            )
+                           )
+                 )
+                ) ".".
+
+VARYING = "VARYING" identifier "FROM" identifier "NEXT" identifier ["RANGE" Expression] .
+
+stDO = "DO" [number "TIMES"] {VARYING} "." (.stmt="".)
+  {Statement(.stmt+=lus.)}
+"ENDDO""."
+(.
+    src("begin\n#{stmt}end while (true)\n")
+    
+.)
+.
+
+Event_exp_item = "VALUE"(Expression) Typing 
+                         ["OPTIONAL"|("DEFAULT" Expression)] .
+    
+Event_options = "EXPORTING" Event_exp_item {Event_exp_item} .
+
+stEVENTS = "EVENTS" identifier [ Event_options ]".".
+
+
+stMODIFY = "MODIFY"
+     ( 
+         ( 
+           (
+              ( "TABLE" identifier|identifier "INDEX" identifier ["USING" "KEY" ["("] identifier [")"]] ) 
+               | 
+              (identifier ["USING" "KEY" identifier] ) "FROM" identifier ["TRANSPORTING" identifier ] [("ASSIGNING" identifier ["CASTING"])|("REFERENCE" "INTO" identifier)] 
+           ) 
+           | (identifier "FROM" identifier ["USING" "KEY" ["("] identifier [")"]] 
+                       "TRANSPORTING" identifier  
+                       "WHERE" "("LogExp")") 
+        ) 
+        |  
+           ( 
+            "LINE" number ["OF" ("PAGE" number)|("CURRENT" "PAGE")] ["INDEX" identifier] 
+            |
+            "CURRENT" "LINE"
+           ) 
+           ["LINE" "VALUE" "FROM" identifier] 
+           ["FIELD" "VALUE" identifier ["FROM" identifier] {identifier ["FROM" identifier]}] 
+           ["LINE" "FORMAT" Format_options] 
+           ["FIELD" "FORMAT" identifier Format_options {identifier Format_options} ] 
+       |
+         "SCREEN" "FROM" identifier 
+       |
+         (identifier|"("Expression")" )
+                ( ["USING" "CLIENT" identifier] | ["CLIENT" "SPECIFIED"] )
+                 ["CONNECTION" ("("Expression")"| identifier)] 
+                 "FROM" ( identifier|("TABLE" identifier) ) 
+     ) ".".
+
+stON = "ON" "CHANGE" "OF" identifier {"OR" identifier }"." 
+  Statements 
+"ENDON"".".
+
+SQLCondition = LogExp .
+
+stOPEN = "OPEN" ( 
+     "CURSOR" ["WITH" "HOLD"] "@"identifier "FOR" 
+      [ "WITH"    ("+" identifier "AS" identifier) {"," "+" identifier "AS" identifier} ]
+  "SELECT" (
+           Expression{"," Expression} "FROM" identifier{"," identifier} 
+           | 
+           "FROM" identifier{"," identifier} "FIELDS"  Expression{"," Expression}
+          ) 
+         [["FOR" "ALL" "ENTRIES" "IN" identifier] "WHERE" SQLCondition] 
+         [GroupBy] ["HAVING" SQLCondition] 
+         ["ORDER" "BY" identifier{","identifier} ] 
+         ["OFFSET" number] 
+         ["UP" "TO" number "ROWS"] 
+         ["BYPASSING" "BUFFER"] 
+         ["CONNECTION" identifier|"(" Expression ")"]
+          | 
+         
+         "DATASET" identifier 
+  "FOR" ( "INPUT" | "OUTPUT" | "APPENDING" | "UPDATE" ) 
+  "IN" ( ( "BINARY" "MODE" ) 
+     | ( "TEXT" "MODE" "ENCODING" ( "DEFAULT" 
+                            | (identifier(.is('UTF-8').) ["SKIPPING"|"WITH" "BYTE-ORDER" "MARK"]) 
+                            | "NON-UNICODE" ) 
+                   ["WITH" ("NATIVE"|"SMART"|"UNIX"|"WINDOWS") "LINEFEED"]  ) 
+
+     | "LEGACY" 
+         ( ( "BINARY" "MODE" [("BIG"|"LITTLE") "ENDIAN"] 
+                                ["CODE" "PAGE" identifier] ) 
+         | (  "TEXT" "MODE" [("BIG"|"LITTLE") "ENDIAN"] 
+                              ["CODE" "PAGE" identifier] 
+                              ["WITH" ("NATIVE"|"SMART"|"UNIX"|"WINDOWS") "LINEFEED"] ) 
+          )                    
+    ) 
+  ["AT" "POSITION" number] 
+  ["TYPE" identifier] 
+  ["FILTER" identifier] 
+  ["MESSAGE" string1] 
+  ["IGNORING" "CONVERSION" "ERRORS"] 
+  ["REPLACEMENT" "CHARACTER" char] ) ".".
+
+stFETCH = "FETCH" "NEXT" "CURSOR" identifier 
+    ( ( "INTO" ( (["CORRESPONDING" "FIELDS" "OF"] identifier) | identifier{"," identifier} ) ) 
+    | ( "INTO"|"APPENDING" ["CORRESPONDING" "FIELDS" "OF"] "TABLE" identifier 
+                       ["PACKAGE" "SIZE" number] ) ) 
+      [ "EXTENDED" "RESULT" "@"identifier ]".".
+
+ProvideFields = "FIELDS" ("*"| identifier {identifier}) 
+               "FROM" identifier "INTO" identifier "VALID" identifier  
+               "BOUNDS" number "AND" number 
+               ["WHERE" LogExp] .
+
+
+               
+stPROVIDE = "PROVIDE" ProvideFields {ProvideFields}
+       
+        "BETWEEN" number "AND" number 
+        ["INCLUDING" "GAPS"]"." 
+  Statements 
+"ENDPROVIDE"".".
+                       
+stREAD = "READ" 
+(. params ={};.)
+    (
+      "DATASET" identifier "INTO" identifier ["MAXIMUM" identifier(.is('LENGTH').) number] 
+                            [["ACTUAL"] identifier(.is('LENGTH').) number] 
+    
+     |  /* READ LINE */
+     ( ("LINE" number [("OF" "PAGE" number)|("OF" "CURRENT" "PAGE")] ["INDEX" identifier]) 
+                                                            | ("CURRENT" "LINE") ) 
+                                                                    ["LINE" "VALUE" "INTO" identifier] 
+     ["FIELD" "VALUE" identifier ["INTO" identifier] {identifier ["INTO" identifier] }]
+      |  /* READ REPORT */
+      "REPORT" identifier "INTO" identifier ["MAXIMUM" "WIDTH" "INTO" number]
+       | /* READ TABLE itab*/
+       "TABLE" (.fn="read_table".)Name (.params["id"]=lus.)(
+           {
+               [(
+            
+                    ("FROM" identifier (.params["from"]=prevString.)["USING" "KEY" ["("] identifier [")"]]) 
+                 |
+                      "WITH" ["TABLE"] "KEY" 
+                      Name ("COMPONENTS" | "=" Expression ){ Name "=" Expression } 
+                         
+                  
+                 | 
+                     "INDEX" Expression (.params["index"]=lus.)["USING" "KEY" Name ] 
+               )]
+               
+               [
+                       
+                    ("INTO" Var (.params["into"]=lus.)
+                      ["COMPARING" (  "ALL" "FIELDS" | "NO" "FIELDS" |identifier{identifier} )] 
+                      ["TRANSPORTING" ( "ALL" "FIELDS"  | identifier{identifier} )]) 
+                   |  "ASSIGNING" Var ["CASTING"]  
+                   |  "REFERENCE" "INTO" identifier 
+                   | "TRANSPORTING" "NO" "FIELDS"
+                   | "BINARY" "SEARCH"
+               ]
+           }
+    )
+    |/* READ TEXTPOOL */
+     "TEXTPOOL" identifier "INTO" identifier "LANGUAGE" identifier ) "."
+     
+     (.
+         if fn
+             src("#{fn}(#{hash_to_params(params)})\n")
+         end
+     
+     .)
+     .
+       
+
+stSORT = "SORT" identifier ["STABLE"] 
+           ["ASCENDING"|"DESCENDING"] 
+              ["AS" "TEXT"] 
+              ["BY" (Expression ["ASCENDING"|"DESCENDING"] ["AS" "TEXT"]) {Expression ["ASCENDING"|"DESCENDING"] ["AS" "TEXT"]}] 
+              
+          ".".
+
+stSUBMIT = "SUBMIT" (identifier|"("identifier")") 
+  ["USING" "SELECTION-SCREEN" identifier] 
+  ["VIA" "SELECTION-SCREEN"] 
+  ["USING" "SELECTION-SET" identifier] 
+  ["USING" "SELECTION-SETS" "OF" "PROGRAM" identifier] 
+  ["WITH" "SELECTION-TABLE" identifier] 
+  {
+      "WITH" identifier ( (("EQ"|"NE"|"CP"|"NP"|"GE"|"LT"|"LE"|"GT") identifier [identifier(.is('SIGN').)  string1]) 
+              | (["NOT"] "BETWEEN" identifier "AND" identifier [identifier(.is('SIGN').)  string1]) 
+              | ("IN" identifier) )
+  }
+  ["WITH" "FREE" "SELECTIONS" string1] 
+  ["LINE-SIZE" number] 
+  ["LINE-COUNT" number] 
+  ( ["EXPORTING" "LIST" "TO" "MEMORY"] 
+  | ["TO" "SAP-SPOOL" "SPOOL" "PARAMETERS" identifier 
+                  ["ARCHIVE" "PARAMETERS" identifier] 
+                  "WITHOUT" "SPOOL" "DYNPRO"] ) 
+  [["USER" string1] "VIA" "JOB" identifier "NUMBER" number ["LANGUAGE" identifier]] 
+  ["AND" "RETURN"]".".
+  
+stTRY = "TRY"  "." (. stmt_try="";stmt_catch="";.)
+    {Statement(. stmt_try+=lus.)}
+  {
+      "CATCH"  (.ar=[].)["BEFORE" "UNWIND"] {Name(.ar.push(to_ruby_const(lus)).)} ["INTO" Var(.e=lus.)]"." 
+          {Statement(. stmt_catch+=lus.)}
+  }
+  
+  ["CLEANUP" ["INTO" identifier]"." 
+    {Statement}] 
+"ENDTRY"  "." 
+(.
+    if e
+        e = "=>#{e}"
+    else
+        e = ""
+    end
+    src("begin\n#{stmt_try}\nrescue #{ar.join(",")}#{e}\n#{stmt_catch}\nend\n")
+.)
+
+.
+
+/*
+Lob_handle_type =  ( "READER"|"LOCATOR"|"LOB" "HANDLE"|"WRITER" ) 
+                   "FOR" 
+                   ( "COLUMNS" identifier {identifier}  |  "ALL" ["OTHER"] ["BLOB"|"CLOB"] "COLUMNS" ) .
+  */
+                               
+Association = "ASSOCIATION" identifier "TO" identifier "ON" identifier "=" identifier 
+                                          { "AND" identifier "=" identifier }
+                                          ["USING" "KEY" identifier] .
+
+Types_mesh_stmt =   "TYPES"  NameInVarDef ( 
+                  "TYPE" ["REF" "TO"] identifier 
+                  | 
+                  "LIKE" ["REF" "TO"] identifier    ) 
+               {Association} 
+               "." .
+
+/* Because 'END' can be identifier(so LL(1) cannot parse it), so this rule has to be single rule and modifier it in subclass */
+ /*TypeOfStuct =  
+                {stINCLUDE|("TYPES" NameInVarDef["("number")"] (TypeDes|LikeDes) ["BOXED"]  ".")}
+               "TYPES" "END" "OF" identifier.   
+                   .    */         
+       
+stTYPES =  (.# ignore_this_rule .) "TYPES" (  
+          "BEGIN" "OF"(
+              "ENUM" identifier  ["STRUCTURE" identifier] 
+                            ["BASE" "TYPE" identifier] "." 
+                "TYPES" identifier "VALUE" (Expression |"IS" "INITIAL"(.back();re(".init()").))
+                {"," "TYPES" identifier "VALUE" (Expression |"IS" "INITIAL"(.back();re(".init()").))} 
+              "TYPES" "END" "OF" "ENUM" identifier ["STRUCTURE" identifier]
+            | 
+              "MESH" identifier"." 
+                       {Types_mesh_stmt}
+                       "DATA" "END" "OF" "MESH" identifier
+            | NameInVarDef 
+                /*TypeOfStuct*/
+          )  
+       |
+           "END" "OF" identifier
+       |
+           NameInVarDef["("number")"] 
+                           (TypeDes|LikeDes)
+         
+         )       
+      "." 
+      (. src("") .)
+      .
+            
+                 
+  ForStatement         = "for"  "(" [ Expression ] ";"   [ Expression ]   ";"  [ Expression  ] ")" Statement .
+
+
+stUPDATE = "UPDATE" Expression
+       [("USING" "CLIENT" identifier | "CLIENT" "SPECIFIED")] 
+       ["CONNECTION" Expression] 
+       ( 
+            "SET" identifier "=" Expression {"," identifier "=" Expression}
+               ["WHERE" LogExp]  
+        | 
+           ( "FROM" identifier|("TABLE" identifier) )
+       )".".
+       
+stWHILE = "WHILE" LogExp 
+      {
+          "VARY" identifier "FROM" identifier "NEXT" identifier ["RANGE" Expression] 
+      }"." 
+  {Statement} 
+"ENDWHILE"".".
+
+       
+  CallFunction = "FUNCTION" (Name|string1) 
+              [ {"IN" "UPDATE" "TASK"} 
+               | 
+                   {
+                    [ 
+                        {"STARTING" "NEW" "TASK" identifier} 
+                       |
+                        {"IN" "BACKGROUND" "TASK" ["AS" "SEPARATE" "UNIT"]}
+                    ] 
+                    ["DESTINATION" identifier]
+                   } 
+               | {"IN" "BACKGROUND" "UNIT"} 
+              ] 
+              [{"CALLING" identifier}|{"PERFORMING" identifier} "ON" "END" "OF" "TASK"] 
+              { ["EXPORTING"  {identifier "=" Expression }] 
+                ["IMPORTING" {identifier "=" Expression }] 
+                ["TABLES" {identifier "=" identifier }] 
+                ["CHANGING"   {identifier "=" Expression }] 
+                ["EXCEPTIONS" {identifier "=" Expression } 
+                            ["error_message" "=" string1] 
+                            ["system_failure" "=" string1  ["MESSAGE" string1]] 
+                            ["communication_failure" "=" string1 ["MESSAGE" string1]] 
+                            ["resource_failure" "=" string1] 
+                            ["OTHERS" "=" string1]
+                ]
+              } 
+              | {["PARAMETER-TABLE" identifier] 
+                  ["EXCEPTION-TABLE" identifier] } "." . 
+                       
+                       
+  IfStatement          = (. 
+                          ret = ""
+                          stmts = "" 
+                          
+                          .)
+                      "IF" LogExp (. exp = lus .)  "."
+                              [{Statement (. stmts += lus+"\n" .)}] 
+                              (.  ret += "if #{exp}\n#{stmts}\n";stmts="" .)
+                             { "ELSEIF" LogExp (. exp = lus .) "."
+                              [{Statement(. stmts += lus .)}  ]
+                              (.  ret += "elsif #{exp}\n#{stmts}\n";stmts="" .)
+                              }
+                              [ "ELSE" "."   [{Statement(. stmts += lus .)}]   (.  ret += "else\n#{stmts}\n" .) ]
+                              "ENDIF"
+                               (. 
+                                ret += "\nend\n" 
+                                  src(ret)
+                               .)
+                                "." 
+                              .
+
+  NullStatement        = "." . 
+
+  ReturnStatement      = "return" (. replace_src("return").)[ Expression ]   ";"   .
+                         
+/*
+WhileStatement = "WHILE" Expression 
+      {["VARY" identifier "FROM" identifier "NEXT" identifier ["RANGE" identifier] ]}"." 
+      {Statement}
+      "ENDWHILE" "."
+. 
+*/
+
+ClassStatement = "CLASS" identifier 
+                            (. 
+                                cls = @root_class.add_class(prevString)
+                                in_scope(cls)
+                            .)
+                (
+                            "DEFINITION" 
+                            ( 
+                                   "DEFERRED" ["PUBLIC"]
+                              |
+                                  [( "PUBLIC"|"PROTECTED"|"PRIVATE")]
+                                  {
+                                 
+                                   ["INHERITING" "FROM" identifier 
+                                       (. 
+                                           n  = prevString
+                                            cls.parent = valid_class_name(prevString) 
+                                            out_scope()
+                                            load_file("#{n}")
+                                            cls.add_require("#{n.downcase}.rb")
+                                           
+                                           in_scope(cls)
+                                       .)
+                                    ] 
+                                   ["ABSTRACT"] 
+                                   ["FINAL"] 
+                                   ["CREATE" {"PUBLIC"|"PROTECTED"|"PRIVATE"}] 
+                                   ["SHARED" "MEMORY" "ENABLED"] 
+                                   ["FOR" "TESTING" 
+                                     ["RISK" "LEVEL" {"CRITICAL"|"DANGEROUS"|"HARMLESS"}] 
+                                     ["DURATION"   {"SHORT"|"MEDIUM"|"LONG"}] ] 
+                                   [
+                                       ["GLOBAL"] "FRIENDS" identifier {identifier}
+
+                                    ]
+                                  }
+                            )
+                            ["LOAD"  (. out_scope() if cls .)]
+                    |
+                        "IMPLEMENTATION"
+                
+                ) "." 
+                        
+
+               
+{
+    
+  [("PUBLIC"|"PROTECTED"|"PRIVATE") "SECTION" "." ]
+  {Statement}
+}
+
+
+
+["ENDCLASS" "." (. out_scope() if cls .) ] .
+
+
+/*ClassImplStatement = "CLASS" identifier "IMPLEMENTATION" "." 
+   {Statement} 
+"ENDCLASS" "." .*/
+
+MethodStatement = "METHOD" identifier["~"identifier] (.       fname = prevString
+      if current_scope.is_a?(ClassDef)
+          classdef = current_scope
+         
+      end .) 
+    "." 
+    (. 
+       src("")
+       in_scope("Method")
+    .)
+  {Statement} 
+  (.      
+      p "src:#{src}"
+      
+      if current_scope.parentScope
+         add_method(current_scope.parentScope, fname, nil, [], src, "", {:pre=>current_scope.pre})
+      end 
+      out_scope()
+  .)
+"ENDMETHOD" 
+
+".".
+
+Typing = (
+            "TYPE"  (["LINE" "OF"|"REF" "TO"] ("DATA"|Expression) | ("ANY"|"INDEX"|"STANDARD") ["TABLE"] )
+        | 
+            "LIKE" [( ["LINE" "OF"] | "REF" "TO" )] Expression 
+            
+         )
+ .
+    /*     
+Typing = (
+           TypeDes
+        | 
+            LikeDes
+            
+         )
+ .
+        */  
+MethodsStatement =  ("METHODS" | "CLASS-METHODS" (.static=true.)) identifier["~"identifier] 
+(.     
+    fname = prevString
+      if current_scope.is_a?(ModuleDef)
+          classdef = current_scope
+         
+      end
+.) 
+        ["ABSTRACT"|"FINAL"] 
+        (
+                
+                "FOR" "TESTING" 
+            |  
+                ["FINAL"] "REDEFINITION"
+            |   
+                ["DEFAULT" ("IGNORE"|"FAIL")] 
+                ["FOR" "EVENT" identifier "OF" identifier] 
+                [ "IMPORTING" (.impar = [].) { 
+                                  ( 
+                                          "VALUE" "(" identifier (.impar.push(prevString).)")" 
+                                      |  
+                                          "REFERENCE" "(" identifier (.impar.push(prevString).)")" 
+                                      |
+                                          identifier (.impar.push(prevString.downcase).)
+                                  )
+                                   Typing ["OPTIONAL"| "DEFAULT" Expression] 
+                                 } 
+                              ["PREFERRED" "PARAMETER" identifier] ] 
+                [ "EXPORTING" (.exporting = [].){
+                                  {"VALUE""("identifier(.exporting.push(prevString).)")"|"REFERENCE" "("identifier(.exporting.push(prevString).)")"|identifier(.exporting.push(prevString).)} Typing 
+                                 }
+                                  ] 
+                [ "CHANGING"  {
+                              ("VALUE" "(" identifier ")" | "REFERENCE" "(" identifier ")" | identifier )
+                               Typing ["OPTIONAL"| "DEFAULT" Expression] 
+                               } ] 
+                [ "RETURNING" {"VALUE" "("identifier")"} Typing ] 
+                [
+                       {"RAISING" ("RESUMABLE" "(" identifier ")" | identifier) { ("RESUMABLE" "(" identifier ")" | identifier)}} 
+                           | 
+                       {"EXCEPTIONS" identifier {identifier} }
+                ]
+       )
+  
+  
+  "."
+  
+  (.      
+      p "src:#{src}"
+      os = origin_src
+      doc_lines = os.split("\n")
+      doc = ""
+      doc_lines.each{|line| doc +="# "+line+"\n"}
+     
+      args = nil
+      if impar
+         
+          for i in 0..impar.size-1
+           impar[i] += ":nil"
+          end
+      else
+          impar = []
+      end
+      
+       args = impar.clone
+      impar.push("_i:nil")
+      impar.push("_e:nil")
+      impar.push("_b:nil")
+      pars = impar.join(",")
+      
+       if classdef
+              dec = ""
+              dec = "static" if static
+             classdef.add_method(fname, "(*_a,#{pars})", [], nil , dec, {:doc=>doc,:import=>args, :export=>exporting})
+       end 
+  .)
+   . 
+  
+  /*** copy from convert_result ***/
+stADD = "ADD" Expression ( 
+          "TO" Name
+         |  
+             ( 
+                 "THEN" identifier "UNTIL" identifier 
+                 ( "TO" identifier | ("GIVING" identifier ["ACCORDING" "TO" identifier]) ) 
+                  
+            |
+            (  "FROM" number "TO" number "GIVING" identifier )
+            ) ["RANGE" Expression] 
+         ) ".".
+
+stADD_CORRESPONDING = "ADD-CORRESPONDING" identifier "TO" identifier".".
+
+stALIASES = "ALIASES" identifier "FOR" Name ".".
+
+stASSERT = "ASSERT" [ ["ID" identifier (.cp[:id]=prevString.)["SUBKEY" identifier(.cp[:subkey]=prevString.)]] 
+         ["FIELDS" (.cp[:fields]=[].) identifier (.cp[:fields].push(prevString).) {identifier(.cp[:fields].push(prevString).)} ] 
+         "CONDITION" ] LogExp (.cp[:o]=lus.) "." (.make.) .
+
+stASSIGN = "ASSIGN" (.params={}.)( 
+       ["TABLE" "FIELD"] "("identifier")" 
+       | "COMPONENT" Expression "OF" "STRUCTURE" identifier
+       | Expression 
+        [ (
+            ["+" number]["("number")"] 
+            | ("->"|"=>") ["*"|Name]
+            | "INCREMENT" number
+        )]
+  ) 
+  "TO" Var(.params[:to]=lus.) 
+  [ ( "CASTING" [ 
+  
+              ["TYPE" ["HANDLE"] Name] ["DECIMALS" number ]
+              | ("LIKE" identifier) 
+              
+              ] ) 
+  |  (["TYPE" identifier] ["DECIMALS" number]) ] 
+  ["RANGE" Expression]"."
+  
+  (.
+          src("assign(#{hash_to_params(params)})\n")
+
+  .)
+  
+  
+  .
+
+stAT = "AT" ("NEW" identifier | "FIRST" | "LAST" | "END" "OF" identifier) "."
+ {Statement}
+"ENDAT"
+"."
+.
+
+/*AT = "AT"(  "LINE-SELECTION"  |  "SELECTION-SCREEN" [ "OUTPUT" 
+                    | ("ON" (par|selcrit)) 
+                    | ("ON" "END" "OF" selcrit) 
+                    | ("ON" "BLOCK" block) 
+                    | ("ON" "RADIOBUTTON" "GROUP" identifier) 
+                    | ("ON" ("HELP-REQUEST"|"VALUE-REQUEST") 
+                       "FOR" (par|selcrit-low|selcrit-high)) 
+                    | ("ON" "EXIT-COMMAND") ] |  "USER-COMMAND" ) ".".*/
+
+stBACK = "BACK"".".
+
+stBREAK_POINT = "BREAK-POINT" [ ("ID" identifier) | "("string1")" ]".".
+
+stCALL = "CALL" (.back_src.) (CallFunction | CallBadi | CallDialog | CallCustomerFunction | CallDatabaseProcedure | CallMethod | CallScreen
+            | CallSelectionScreen
+            | CallTransation
+            | CallTransformation
+            ) .
+
+CallCustomerFunction = "CUSTOMER-FUNCTION" identifier 
+                       ["EXPORTING"  Expression{Expression} ] 
+                       ["IMPORTING" Expression{Expression}] 
+                       ["CHANGING"  Expression{Expression}] 
+                       ["TABLES" Expression{Expression}] 
+                       ["EXCEPTIONS" {Expression}
+                                   [string1 "=" identifier] 
+                                   ["OTHERS" "=" Expression]]   .
+
+CallDialog =  "DIALOG" identifier [ ("AND" "SKIP" "FIRST" "SCREEN") 
+                   | ("USING" identifier ["MODE" identifier]) ] 
+                   ["EXPORTING" identifier "FROM" identifier  { identifier "FROM" identifier}] 
+                   ["IMPORTING"  identifier "TO" identifier { identifier "TO" identifier}] .
+
+CallDatabaseProcedure =  "DATABASE" "PROCEDURE" "("identifier")" 
+            ["CONNECTION" ("("Expression")"|identifier)] 
+              (   ["EXPORTING"  {Expression} ] 
+                    ["IMPORTING"  {Expression}  ] 
+        |  ["PARAMETER-TABLE" identifier]  ) .
+
+MethodName = ( (string1 (.name=strInQuote(prevString).)| identifier(.name=prevString.)) |  "("(string1 (.name=strInQuote(prevString).)| identifier(.name=prevString;.))")" ) (.src(name).).
+
+CallMethod =  "METHOD" 
+        (. param_hash = {};name = "".)
+        ( 
+            (
+              MethodName(.mn1 = lus;name+=lus;name=procName(name).) {"=>" MethodName
+              (.
+                  mn2 = lus
+                  name+=".#{lus}"
+              .)
+              }
+               
+                
+               /*["("](string1(.name+=strInQuote(prevString).)|identifier(.name+=prevString;.))[")"] [ ("->"|"=>") ["("](string1(.name+="."+strInQuote(prevString).)| identifier(.name+="."+prevString.)) [")"] ]
+                Expression(.name=lus.)*/
+            |    
+                "OF" identifier identifier ["=" identifier] 
+             ) 
+            {
+                ["PARAMETER-TABLE" Name (.param_hash["PARAMETER-TABLE"]=lus.) ] 
+                ["EXCEPTION-TABLE" Name (. param_hash["EXCEPTION-TABLE"]=lus .) ] 
+                ["EXPORTING" (. exporting = "{\n".){ Name(.idn = lus.) "=" Expression (.exporting+="\"#{idn}\" => #{lus},\n".)} (. exporting += "}".)  ] 
+                ["IMPORTING" (. importing = "{\n".) { Name(.idn = lus.) "=" Expression (.importing+="\"#{idn}\" => \"#{lus}\",\n".)} (. importing += "}".)  ] 
+                ["CHANGING" (. changing = "{\n".) { Name(.idn = lus.) "=" Expression (.changing+="\"#{idn}\" => #{lus},\n".)} (. changing += "}".)  ] 
+                ["RECEIVING" Expression  (.param_hash["RECEIVING"]=lus.) ] 
+                ["NO" "FLUSH" (.param_hash["noflush"]=true.) ] 
+                ["QUEUE-ONLY" (.param_hash["QUEUE-ONLY"]=true.) ] 
+            }
+        )
+            (.
+                params = {"_i"=>exporting, "_e"=>importing, "_b"=>"binding"}
+              
+             
+               # src("call_method(#{name1}.#{name2}, {#{params}})");
+                  if mn1.start_with?("super.") 
+                      mname = mn1.gsub("super.","")
+                      name = "super_method(#{current_ruby_scope.class_name}, :#{mname}).call"
+                  else
+                      
+                  end
+                src("#{name}(#{hash_to_params(params)})\n")
+            .)
+            .
+               
+CallScreen =       "SCREEN" identifier 
+            ["STARTING" "AT" string1 number 
+            ["ENDING"   "AT" string1 number]] .
+            
+CallSelectionScreen = "SELECTION-SCREEN" identifier 
+                                    ["STARTING" "AT" string1 number 
+                                    ["ENDING"   "AT" string1 number]] 
+                                    ["USING" "SELECTION-SET" identifier] .
+CallTransation =  "TRANSACTION" identifier "WITH"|"WITHOUT" "AUTHORITY-CHECK" 
+                    ( ["AND" "SKIP" "FIRST" "SCREEN"] 
+                    | ["USING" identifier 
+                             ((["MODE" string1] 
+                               ["UPDATE" identifier]) 
+                              |["OPTIONS" "FROM" identifier]) 
+                             ["MESSAGES" "INTO" identifier]] ).
+
+CallTransformation = "TRANSFORMATION" (Name) 
+                    ["PARAMETERS" ({Expression} |"("identifier")") ] 
+                    ["OBJECTS"    ({Expression} |"("identifier")") ] 
+                    ["OPTIONS"    {Expression} ] 
+                    "SOURCE" ("XML" identifier) 
+                         | (({Expression} |"("identifier")")) 
+                    "RESULT" ("XML" identifier) 
+                         | ( ({Expression} |"("identifier")")) 
+                             ["AREA" "HANDLE" identifier ] .
+                                                                             
+CallBadi = (  "BADI" identifier"->" "(" identifier ")"
+          ( ["EXPORTING"  Expression{Expression}] 
+            ["IMPORTING" Expression{Expression} ] 
+            ["CHANGING"   Expression{Expression} ] 
+            ["RECEIVING" Expression ] 
+            ["EXCEPTIONS" {Expression}
+            ["OTHERS" "=" Expression]]) 
+        | (["PARAMETER-TABLE" identifier] 
+            ["EXCEPTION-TABLE" identifier] ) 
+         ) ".".
+
+/*stCATCH = "CATCH" "SYSTEM-EXCEPTIONS" {Expression}
+                        ["OTHERS" "=" identifier]"." 
+  [Statements]
+"ENDCATCH"".".*/
+
+stCHECK = "CHECK" (. re("check(").) LogExp /*|"SELECT-OPTIONS" */ (. add_src(")") .)".".
+
+/*stCLASS_DATA = "CLASS-DATA" identifier Event_options ".".*/
+
+stCLASS_EVENTS = "CLASS-EVENTS" identifier Event_options ".".
+
+stCLASS_POOL = "CLASS-POOL" ["MESSAGE-ID" identifier]".".
+
+stCLEAR = "CLEAR" (.params={}.) Expression(.params[:id]=lus.) [ ("WITH" identifier (.params[:with]=prevString.)["IN" ("CHARACTER"|"BYTE" )(.params[:mode]=prevString.) "MODE"]) 
+           | ("WITH" "NULL"(.params[:withnull]=true.)) ]"." 
+           (.
+              src("clear(#{hash_to_params(params)})\n")
+            .)
+           .
+
+stCLOSE = "CLOSE"(  "CURSOR" "@"identifier |  "DATASET" identifier ) ".".
+
+stCOLLECT = "COLLECT" (.params={}.)Name(.params[:id]=lus.) "INTO" Name(.params[:into]=lus.) ( ["ASSIGNING" identifier ["CASTING"]] 
+                     | ["REFERENCE" "INTO" identifier] )"."
+                     (.
+                        src("collect(#{hash_to_params(params)})\n")
+                      .)
+                     .
+
+stCOMMIT = "COMMIT"(  "WORK" ["AND" "WAIT"] |  "CONNECTION" identifier ) ".".
+
+/*COMMUNICATION = "COMMUNICATION" ( ("INIT" "DESTINATION" identifier) 
+              | ("ALLOCATE") 
+              | ("ACCEPT") 
+              | ("SEND" "BUFFER" buf) 
+              | ("RECEIVE" "BUFFER" identifier "DATAINFO" identifier "STATUSINFO" identifier) 
+              | ("DEALLOCATE") ) "ID" identifier 
+              ["RETURNCODE" identifier] 
+              ["LENGTH" leng] 
+              ["RECEIVED" identifier] 
+              ["HOLD"]".".
+*/
+stCOMPUTE = "COMPUTE" ["EXACT"] identifier ["?"] "=" identifier".".
+
+/*CONCATENATE = "CONCATENATE" ( identifier{identifier} |"LINES" "OF" identifier) 
+            "INTO" identifier 
+            ["IN" ("CHARACTER"|"BYTE") "MODE"] 
+            ["SEPARATED" "BY" sep] 
+            ["RESPECTING" "BLANKS"]".".*/
+
+stCONDENSE = "CONDENSE" Expression ["NO-GAPS"]".".
+
+/*CONSTANTS = "CONSTANTS" const options".".*/
+
+stCONTROLS = "CONTROLS" identifier "TYPE" ( "TABLEVIEW" "USING" "SCREEN" identifier ) 
+                   | ( "TABSTRIP" )".".
+
+stCONVERT = "CONVERT"(
+  
+      |  "TEXT" string1 "INTO" "SORTABLE" "CODE" string1 
+      |  ( "TIME" "STAMP" string1 "TIME" "ZONE" string1 
+          "INTO" [identifier(. is('DATE') .) string1] ["TIME" string1] ["DAYLIGHT" "SAVING" "TIME" string1] ) 
+      | ( identifier(. is('DATE') .) string1 ["TIME" string1 ["DAYLIGHT" "SAVING" "TIME" string1]] 
+          "INTO" "TIME" "STAMP" string1 "TIME" "ZONE" string1 ) ) ".".
+
+stCREATE = "CREATE"(  "DATA" identifier (.varname=prevString.)[ "AREA" "HANDLE" identifier ] [ TypeDes (. var_type = @lnv 
+                         p "var_type:#{var_type.inspect}"
+                         .)| LikeDes]
+                 /*[ "TYPE" ( 
+                         (["LINE" "OF"] Name) 
+                        | ("REF" "TO" Name) 
+                        | ( ((["STANDARD"] "TABLE") 
+                           |("SORTED" "TABLE") 
+                           |("HASHED" "TABLE")) 
+                           "OF" ["REF" "TO"] Name
+                           [ ("WITH" ["UNIQUE"|"NON-UNIQUE"] 
+                                ("KEY" (identifier{identifier} |"("identifier")"))|("DEFAULT" "KEY")) 
+                           | ("WITH" "EMPTY" "KEY") ] 
+                           ["INITIAL" "SIZE" number]) 
+                        | ("HANDLE" identifier) 
+                        (Name
+                                                   [identifier(.is('LENGTH').) number] ["DECIMALS" number]) 
+                        ) ] 
+                     [ TypeDes (. var_type = @lnv 
+                         p "var_type:#{var_type.inspect}"
+                         .)]
+               | [ "LIKE" ( (["LINE" "OF"] identifier) 
+                        | ("REF" "TO" identifier) 
+                        | ( ((["STANDARD"] "TABLE") 
+                           |("SORTED" "TABLE") 
+                           |("HASHED" "TABLE")) 
+                           "OF" identifier 
+                           [ ("WITH" ["UNIQUE"|"NON-UNIQUE"] 
+                                ("KEY" (identifier{identifier} |"("identifier")"))|("DEFAULT" "KEY")) 
+                           | ("WITH" "EMPTY" "KEY") ] 
+                           ["INITIAL" "SIZE" number]) ) ]*/
+                 |  "OBJECT" identifier ["AREA" "HANDLE" identifier] 
+                   [ ["TYPE" TypeName] 
+                      ["EXPORTING"  Expression{Expression} ] 
+                      ["EXCEPTIONS" Expression{Expression}  ["OTHERS" "=" identifier]] ] 
+                 | [ "TYPE" "("identifier")" 
+                     ( ["EXPORTING"  Expression{Expression}  ] 
+                      ["EXCEPTIONS" Expression{Expression}   ["OTHERS" "=" identifier]]) 
+                   | (["PARAMETER-TABLE" identifier] 
+                      ["EXCEPTION-TABLE" identifier]) ] |  "OBJECT" identifier identifier ["NO" "FLUSH"] ["QUEUE-ONLY"] 
+                      
+               ) 
+                     
+               (.
+                if var_type
+                    s = "#{fixName(varname)} = #{var_type.name}.new\n"
+                    src(s)
+                else
+                    src("")
+                end
+                .)
+                     ".".
+
+/*DELETE = "DELETE" "DATASET" identifier".".*/
+
+stDEMAND = "DEMAND" Expression{Expression}  
+       "FROM" "CONTEXT" identifier 
+       ["MESSAGES" "INTO" identifier]".".
+
+stDESCRIBE = "DESCRIBE"
+         (
+                  "DISTANCE" "BETWEEN" identifier "AND" identifier "INTO" identifier 
+                          "IN" ("BYTE"|"CHARACTER") "MODE"
+              |  "FIELD" Expression 
+                      ["TYPE" identifier ["COMPONENTS" identifier]] 
+                      [identifier(.is('LENGTH').) Expression "IN" ("BYTE"|"CHARACTER") "MODE"] 
+                      ["DECIMALS" Expression] 
+                      ["OUTPUT-LENGTH" Expression] 
+                      ["HELP-ID" identifier] 
+                      ["EDIT" "MASK" identifier]
+              |
+                 "LIST" ( 
+                              ("NUMBER" "OF" (Expression|"PAGES") Expression) 
+                          | 
+                              "LINE" Expression "PAGE" Expression 
+                          | 
+                              (
+                                "PAGE" Expression ["LINE-SIZE" Expression] 
+                                ["LINE-COUNT" Expression] 
+                                [Expression Expression] 
+                                ["FIRST-LINE" Expression] 
+                                ["TOP-LINES" Expression] 
+                                ["TITLE-LINES" Expression] 
+                                ["HEAD-LINES" Expression] 
+                                ["END-LINES" Expression]
+                             ) 
+                        ) 
+                        ["INDEX" identifier]
+            |   
+                "TABLE" identifier { ["KIND" identifier] [Expression Expression] ["OCCURS" Expression] }
+    ) ".".
+
+stDETAIL = "DETAIL"".".
+
+stDIVIDE = "DIVIDE" identifier "BY" identifier".".
+
+stDIVIDE_CORRESPONDING = "DIVIDE-CORRESPONDING" identifier "BY" identifier ".".
+
+stEDITOR_CALL = "EDITOR-CALL" "FOR" ( ("REPORT" identifier ["DISPLAY-MODE"]) 
+                | (identifier ["TITLE" string1] 
+                        [("DISPLAY-MODE")|("BACKUP" "INTO" identifier)]) )".".
+
+stEND_OF_PAGE = "END-OF-PAGE"".".
+
+stEND_OF_SELECTION = "END-OF-SELECTION"".".
+
+stEXIT = "EXIT" [(  "FROM" "SQL" |  "FROM" "STEP-LOOP" )] "."
+        (. src("return").)
+.
+
+stEXPORT = "EXPORT" ( 
+            Expression{Expression}
+       | identifier "FROM" identifier {identifier "FROM" identifier }
+       | "("identifier")" 
+       ) 
+            "TO" (
+              ( "DATA" "BUFFER" identifier ) 
+           | ( "INTERNAL" "TABLE" identifier ) 
+           | ( "MEMORY" "ID" identifier ) 
+           | ( "DATABASE"      identifier"("identifier")" ["FROM" identifier] identifier "ID" identifier ) 
+           | ( ("SHARED" "MEMORY"|"BUFFER") identifier"("identifier")" ["FROM" identifier] ["CLIENT" identifier] "ID" identifier ) 
+          ) 
+           [ "COMPRESSION" ( "ON" | "OFF" ) ]".".
+
+stEXTRACT = "EXTRACT" identifier ".".
+
+stFIELD_GROUPS = "FIELD-GROUPS" identifier   ".".
+
+stFIELD_SYMBOLS = "FIELD-SYMBOLS" identifier ( Typing | ( "STRUCTURE" identifier "DEFAULT" identifier ) )"." (.src("").).
+
+stFIELDS = "FIELDS" identifier".".
+
+stFIND = "FIND" [("FIRST" "OCCURRENCE"|"ALL" "OCCURRENCES") "OF"] 
+     (["SUBSTRING"] ShiftExp | "REGEX" string1)
+     "IN" 
+     (
+         (["SECTION" ["OFFSET" number] ["LENGTH" number] "OF"] Name) 
+       | 
+         ("TABLE" Expression ["FROM" number ["OFFSET" number]] 
+                   ["TO"   number ["OFFSET" number]]) 
+     ) 
+     ["IN" ("CHARACTER"|"BYTE") "MODE"] 
+     [("RESPECTING"|"IGNORING") "CASE"] 
+     ["MATCH" "COUNT"  number] 
+     ( (["MATCH" "LINE"   number] 
+        ["MATCH" "OFFSET" number] 
+        ["MATCH" identifier(.is('LENGTH').) number]) 
+     | ["RESULTS" identifier] ) 
+     ["SUBMATCHES" string1 ]".".
+
+Format_options = {
+        ["COLOR" 
+        ( 
+            ( ["="] 
+                ( 
+                    ( "COL_BACKGROUND" 
+                    /*    | ("1" | "COL_HEADING" ) 
+                        | ("2" | "COL_NORMAL" ) 
+                        | ("3" | "COL_TOTAL" ) 
+                        | ("4" | "COL_KEY" ) 
+                        | ("5" | "COL_POSITIVE" ) 
+                        | ("6" | "COL_NEGATIVE" ) 
+                        | ("7" | "COL_GROUP" ) */
+                        "COL_HEADING" | "COL_NORMAL" | "COL_TOTAL" | "COL_KEY"  | "COL_POSITIVE" | "COL_NEGATIVE" | "COL_GROUP" |number
+                    ) ["ON"] 
+                ) 
+                | "OFF"
+            ) 
+            |
+             "=" string1
+         )
+         ] 
+       ["INTENSIFIED" [ ("ON"|"OFF")|("=" Expression) ] ] 
+       ["INVERSE"     [("ON"|"OFF")|("=" Expression)]] 
+       ["HOTSPOT"     [("ON"|"OFF")|("=" Expression)]] 
+       ["INPUT"       [("ON"|"OFF")|("=" Expression)]] 
+       ["FRAMES"      [("ON"|"OFF")|("=" Expression)]] 
+       ["RESET"]
+   }
+       .
+
+stFORMAT = "FORMAT" Format_options ".".
+
+stFREE = "FREE" (   "MEMORY" "ID" Var(.o=lus.) |  "OBJECT" Var(.o=lus.) ["NO" "FLUSH"] | Var (.o=lus.)) "."
+(.src("free(#{o})\n").)
+.
+
+stFUNCTION_POOL = "FUNCTION-POOL" identifier ["NO" "STANDARD" "PAGE" "HEADING"] 
+                    ["LINE-SIZE" number] 
+                    ["LINE-COUNT" number["("number")"]] 
+                    ["MESSAGE-ID" identifier]".".
+
+stGENERATE = "GENERATE" "SUBROUTINE" "POOL" identifier identifier(. is('NAME') .) identifier 
+  ["MESSAGE" string1] 
+  ["INCLUDE" string1] 
+  ["LINE" number] 
+  [identifier(.is('WORD').) string1] 
+  ["OFFSET" Expression] 
+  ["MESSAGE-ID" identifier] 
+  ["SHORTDUMP-ID" identifier]".".
+
+
+
+stGET = "GET"( 
+       "BADI"  identifier ["FILTERS" Expression{Expression} ]  
+       | ( identifier "TYPE" "("identifier")" 
+              [ ("FILTERS" Exps ) 
+           | 
+              ("FILTER-TABLE" identifier)] 
+         ) 
+         ["CONTEXT" identifier] 
+       |  "BIT" number "OF" string1 "INTO" identifier 
+       |  "CURSOR" (
+                        ( "FIELD" identifier ["VALUE" string1] ["LENGTH" number]  [["DISPLAY"|"MEMORY"] "OFFSET" number] ["LINE" number]  ["AREA" identifier] ) 
+                    | 
+                        ( "LINE" number ["VALUE" string1]["LENGTH" number] [["DISPLAY"|"MEMORY"] "OFFSET" number] )
+                   )
+       |  "DATASET" identifier ["POSITION" number] ["ATTRIBUTES" identifier] 
+       |  "LOCALE" "LANGUAGE" identifier "COUNTRY" string1 "MODIFIER" string1 
+       |  "PARAMETER" "ID" (identifier|string1) "FIELD" identifier 
+       |  "PF-STATUS" string1 ["PROGRAM" identifier] ["EXCLUDING" identifier] 
+       |  "PROPERTY" "OF" identifier identifier "=" identifier ["NO" "FLUSH"] ["QUEUE-ONLY"]["EXPORTING" Exps ] 
+       |  "REFERENCE" "OF" identifier "INTO" identifier 
+       |  "RUN" "TIME" "FIELD" identifier 
+       |  ("TIME" (["FIELD" identifier] |   "STAMP" "FIELD" identifier) )
+       ) ".".
+
+stHIDE = "HIDE" identifier".".
+
+stIMPORT = "IMPORT"(  
+        ( Exps 
+       | "("identifier")" 
+       | ( identifier "TO" identifier  {identifier "TO" identifier} ) 
+       ) 
+  "FROM" ( ( "DATA" "BUFFER" identifier ) 
+       | ( "INTERNAL" "TABLE" identifier ) 
+       | ( "MEMORY" "ID" identifier ) 
+       | ( "DATABASE"      identifier "(" identifier ")" ["TO" identifier] ["CLIENT" identifier] 
+                                   ("ID" identifier)|("MAJOR-ID" identifier ["MINOR-ID" identifier]) ) 
+       | ( "SHARED" ("BUFFER" |"MEMORY") identifier"("identifier")" ["TO" identifier] ["CLIENT" identifier] "ID" identifier ) 
+       
+        ) 
+       [ ( ( ( (["ACCEPTING" "PADDING"] ["ACCEPTING" "TRUNCATION"]) 
+             |  ["IGNORING" "STRUCTURE" "BOUNDARIES"] ) 
+             [ "IGNORING" "CONVERSION" "ERRORS" 
+               ["REPLACEMENT" "CHARACTER" identifier] ] ) 
+         | ["IN" "CHAR-TO-HEX" "MODE"] ) ] 
+       ["CODE" "PAGE" "INTO" identifier] 
+       ["ENDIAN" "INTO" identifier] |  "DIRECTORY" "INTO" identifier 
+  "FROM" "DATABASE" identifier"("identifier")" ["TO" identifier] ["CLIENT" identifier] "ID" identifier ) ".".
+
+stINCLUDE = "INCLUDE"(  ( "TYPE" identifier | "STRUCTURE" identifier ) 
+        ["AS" identifier ["RENAMING" "WITH" "SUFFIX" string1]] 
+        |identifier ["IF" "FOUND"]) ".".
+
+stINFOTYPES = "INFOTYPES" identifier [identifier(. is('NAME') .) identifier] 
+               ["OCCURS" number] 
+               ["MODE" identifier] 
+               ["VALID" "FROM" Expression "TO" Expression] 
+               ["AS" "PERSON" "TABLE"]".".
+
+stINITIALIZATION = "INITIALIZATION"".".
+
+stINPUT = "INPUT"".".
+
+stINSERT = "INSERT"
+            (. params={}.)
+    (  
+        /* INSERT dbtab/itab */
+        [
+            (  
+                 ("INITIAL" "LINE") 
+               | (Expression "OF" identifier ["FROM" identifier] ["TO" identifier] ["USING" "KEY" Name]) 
+               | identifier(.params[:id]=prevString.)
+            ) 
+        ]
+        {
+          ["INTO"] ("("Expression(.params[:into]=lus.)")"   | ["TABLE"] identifier (.params[:intotable]=prevString.) ["INDEX" identifier (.params[:intoindex]=prevString.)])
+          [("USING" "CLIENT" identifier | "CLIENT" "SPECIFIED")]
+          ["CONNECTION" ("("Expression")"|identifier)] 
+          ["VALUES" identifier] 
+          [ ("ASSIGNING" identifier ["CASTING"]) | ("REFERENCE" "INTO" identifier ) ] 
+          ["FROM" (identifier|("TABLE" identifier ["ACCEPTING" "DUPLICATE" "KEYS"])|stSELECT ) ]
+       }
+       | /* INSERT REPORT*/ 
+           "REPORT" identifier "FROM" identifier 
+              ["MAXIMUM" "WIDTH" "INTO" identifier] 
+              ( ["KEEPING" "DIRECTORY" "ENTRY"] 
+              | ( ["PROGRAM" "TYPE" identifier] 
+                  ["FIXED-POINT" "ARITHMETIC" identifier] 
+                  ["VERSION"|("UNICODE" "ENABLING") identifier ] ) 
+              | ["DIRECTORY" "ENTRY" string1] ) 
+       |/* insert textpool */
+         "TEXTPOOL" identifier "FROM" identifier "LANGUAGE" identifier 
+    ) "."
+         
+         (.
+             src("insert(#{hash_to_params(params)})\n")
+         .)
+         
+         .
+
+stINTERFACE = "INTERFACE" identifier (.
+    n = prevString;clsdef = ModuleDef.new(n);current_ruby_scope.add_module(clsdef);clsdef.add_src("module_function\n#{n}=#{to_ruby_const(n)}\n")
+    .)  (   ["PUBLIC"|"PRIVATE"|"PROTECTED"]  "." 
+
+(.in_scope(clsdef).)
+  {
+      stTYPES | stINTERFACES | stINTERFACE | VariableDefineStatement | stINCLUDE | stALIASES 
+      | MethodsStatement | ClassStatement | stTYPE_POOLS
+  } 
+  (.out_scope.)
+"ENDINTERFACE"  |   ("DEFERRED" ["PUBLIC"] | "LOAD" (.
+                                                        cls = current_scope
+                                                        if cls.class_name.downcase != n.downcase
+                                                            cls.add_src("include #{to_ruby_const(n)}\n")
+                                                            cp = current_scope
+                                                            out_scope
+                                                            load_file("#{n}")
+                                                            cls.add_require("#{n.downcase}.rb")
+                                                            in_scope(cp)
+                                                        end
+                                                    .)
+        )  
+    ) ".".
+
+stINTERFACE_POOL = "INTERFACE-POOL"".".
+
+stINTERFACES = "INTERFACES" identifier (.n = prevString.)
+  ["PARTIALLY" "IMPLEMENTED"] 
+  ( ( ["ABSTRACT" "METHODS" identifier ] 
+      ["FINAL" "METHODS" identifier ] ) 
+    | ["ALL" "METHODS" ("ABSTRACT"|"FINAL")] ) 
+  ["DATA" "VALUES" Exps ]"."
+                                                      (.
+                                                          cls = current_scope
+                                                          cls.add_src("include #{to_ruby_const(n)}\n")
+                                                          cp = current_scope
+                                                          out_scope
+                                                          load_file("#{n}")
+                                                          cls.add_require("#{n.downcase}.rb")
+                                                          in_scope(cp)
+                                                      .)
+  
+  .
+
+stLEAVE = "LEAVE" (  
+            "LIST-PROCESSING"
+             |  "PROGRAM" 
+             |  "SCREEN"  
+             |  "TO" ( "TRANSACTION" identifier | "CURRENT" "TRANSACTION" | "LIST-PROCESSING" ["AND" "RETURN" "TO" "SCREEN" identifier] | "SCREEN" identifier ) 
+         ["AND" "SKIP" "FIRST" "SCREEN"] 
+         ) ".".
+
+stLOAD_OF_PROGRAM = "LOAD-OF-PROGRAM"".".
+
+stLOCAL = "LOCAL" identifier".".
+
+stLOG_POINT = "LOG-POINT" "ID" identifier 
+          ["SUBKEY" identifier] 
+          ["FIELDS" identifier ]".".
+
+stMAXIMUM = "MAXIMUM" identifier".".
+
+stMINIMUM = "MINIMUM" identifier".".
+
+stMODULE = "MODULE" string1 ("OUTPUT"|["INPUT"])"." 
+  (Statements)
+"ENDMODULE"".".
+
+stMULTIPLY = "MULTIPLY" identifier "BY" identifier".".
+
+stMULTIPLY_CORRESPONDING = "MULTIPLY-CORRESPONDING" identifier "BY" identifier".".
+
+stNEW_LINE = "NEW-LINE" ["NO-SCROLLING"|"SCROLLING"]".".
+
+stNEW_PAGE = "NEW-PAGE" ["WITH-TITLE"|"NO-TITLE"] 
+         ["WITH-HEADING"|"NO-HEADING"] 
+         ["LINE-COUNT" number] 
+         ["LINE-SIZE" number] 
+         ["NO-TOPOFPAGE"] 
+         [ ( "PRINT" "ON" ["NEW-SECTION"] 
+                       "PARAMETERS" identifier 
+                      ["ARCHIVE" "PARAMETERS" identifier] 
+                       "NO" "DIALOG" ) 
+         | ( "PRINT" "OFF" ) ]".".
+
+stNEW_SECTION = "NEW-SECTION"".".
+
+stNODES = "NODES" identifier ["TYPE" identifier]".".
+
+stOVERLAY = "OVERLAY" string1 "WITH" string1 ["ONLY" string1]".".
+
+stPACK = "PACK" identifier "TO" identifier ".".
+
+stPARAMETERS = "PARAMETERS" ( identifier [("("number")" |  identifier(.is('LENGTH').) number)] ) 
+           [ ("TYPE" identifier ["DECIMALS" number]) 
+                   | ("LIKE" ["("]identifier[")"]) 
+           ] 
+           [ 
+               (["OBLIGATORY"|"NO-DISPLAY"] ["VISIBLE" identifier(.is('LENGTH').) number]) 
+               | ("AS"  (
+                       "CHECKBOX" ["USER-COMMAND" identifier] 
+                       |
+                       "LISTBOX" "VISIBLE" identifier(.is('LENGTH').) number 
+                                       ["USER-COMMAND" identifier] ["OBLIGATORY"]
+                        )
+                    ) 
+               | ("RADIOBUTTON" "GROUP" identifier ["USER-COMMAND" identifier ]) 
+             
+           ] 
+           {
+               ["MODIF" "ID" identifier] 
+               ["LOWER" "CASE"] 
+               ["DEFAULT" Expression] 
+               ["MATCHCODE" "OBJECT" identifier] 
+               ["MEMORY" "ID" identifier] 
+               ["VALUE" "CHECK"] 
+           }
+           ["FOR" ("TABLE"|"NODE") identifier 
+              ["HELP-REQUEST"] 
+              ["VALUE-REQUEST"] 
+              ["AS" "SEARCH" "PATTERN"]]".".
+
+stPERFORM = "PERFORM" ( ( (  
+             Expression ("IN" "PROGRAM" [Name] ["IF" "FOUND"] | ["IF" "FOUND"])
+            | number "OF" identifier {identifier}  
+            | identifier
+            
+         ) 
+            ["TABLES" identifier{identifier}   ] 
+            ["USING" Expression{Expression}   ] 
+            ["CHANGING" Expression{Expression}  ] ) 
+        | ( "ON" ( ("COMMIT" ["LEVEL" identifier]) 
+               | "ROLLBACK" ) ) )".".
+
+stPOSITION = "POSITION" number".".
+
+stPRINT_CONTROL = "PRINT-CONTROL"   ( "INDEX-LINE" number ) ".".
+
+stPROGRAM = "PROGRAM" identifier ["NO" "STANDARD" "PAGE" "HEADING"] 
+             ["LINE-SIZE" number] 
+             ["LINE-COUNT" number["("number")"]] 
+             ["MESSAGE-ID" identifier] 
+             ["REDUCED" "FUNCTIONALITY"]".".
+
+stRANGES = "RANGES" identifier "FOR" identifier ["OCCURS" number]".".
+
+stRECEIVE = "RECEIVE" "RESULTS" "FROM" "FUNCTION" identifier 
+                ["KEEPING" "TASK"] 
+                ["IMPORTING" Exps ] 
+                ["TABLES" Exps ] 
+                ["EXCEPTIONS" {Expression} 
+                            [identifier "=" identifier ["MESSAGE" string1]] 
+                            [identifier "=" identifier ["MESSAGE" string1]] 
+                            ["OTHERS" "=" identifier]]  ".".
+
+stREFRESH = "REFRESH"(
+          "CONTROL" identifier "FROM" "SCREEN" identifier 
+          |  Expression ["FROM" "TABLE" identifier ]
+          ) ".".
+
+stREJECT = "REJECT" "["identifier"]" ".".
+
+stREPLACE = "REPLACE"(  ( ( [("FIRST" "OCCURRENCE")|("ALL" "OCCURRENCES" "OF")] 
+            (["SUBSTRING"] string1) | ("REGEX" string1) "IN" 
+            ( (["SECTION" ["OFFSET" number] [identifier(.is('LENGTH').) number] "OF"] identifier) 
+            | ("TABLE" identifier ["FROM" number ["OFFSET" number]] 
+                          ["TO"   number ["OFFSET" number]]) ) 
+            "WITH" identifier 
+            ["IN" ("CHARACTER"|"BYTE") "MODE"] 
+            [("RESPECTING"|"IGNORING") "CASE"] 
+            ["REPLACEMENT" "COUNT"  number] 
+            ( (["REPLACEMENT" "OFFSET" number] 
+               ["REPLACEMENT" identifier(.is('LENGTH').) number] 
+               ["REPLACEMENT" "LINE"   number]) 
+            | ["RESULTS" identifier] ) ) 
+        | ( "SECTION" ["OFFSET" number] [identifier(.is('LENGTH').) number] "OF" identifier 
+            "WITH" identifier 
+            ["IN" ("CHARACTER"|"BYTE") "MODE"] ) ) |  string1 "WITH" identifier "INTO" identifier 
+        ["IN" ("BYTE"|"CHARACTER") "MODE"] 
+        [identifier(.is('LENGTH').) number] ) ".".
+
+stRESERVE = "RESERVE" number Expression".".
+
+stRESUME = "RESUME"".".
+
+stRETRY = "RETRY"".".
+
+stRETURN = "RETURN" "." (.src("return\n").) .
+
+stROLLBACK = "ROLLBACK"(  "WORK" |  "CONNECTION" identifier ) ".".
+
+stSCROLL = "SCROLL" "LIST" [ ( "TO" "COLUMN" string1 ) 
+            | ( ("LEFT"|"RIGHT") ["BY" number "PLACES"] ) ] 
+            [ ( "TO" ( ("FIRST" "PAGE") 
+                   | ("LAST" "PAGE") 
+                   | ("PAGE" number) ) 
+                   ["LINE" number ] ) 
+              | ( ("FORWARD"|"BACKWARD") [number "PAGES"] ) ] 
+            ["INDEX" identifier]".".
+
+stSELECT_OPTIONS = "SELECT-OPTIONS" identifier "FOR" Name
+              ["OBLIGATORY"|"NO-DISPLAY"] 
+              ["VISIBLE" identifier(.is('LENGTH').) number] 
+              ["NO-EXTENSION"] 
+              ["NO" "INTERVALS"] 
+              ["MODIF" "ID" identifier] 
+              ["DEFAULT" string1 ["TO" identifier] ["OPTION" Expression] [identifier(.is('SIGN').) identifier]] 
+              ["LOWER" "CASE"] 
+              ["MATCHCODE" "OBJECT" identifier] 
+              ["MEMORY" "ID" identifier] 
+              ["NO" "DATABASE" "SELECTION"] 
+              ["HELP-REQUEST"  ["FOR" ("LOW"|"HIGH")]] 
+              ["VALUE-REQUEST" ["FOR" ("LOW"|"HIGH")]]".".
+
+stSELECTION_SCREEN = "SELECTION-SCREEN" "TAB" (number) identifier "USER-COMMAND" identifier 
+                ["DEFAULT" ["PROGRAM" identifier] "SCREEN" identifier] 
+                ["MODIF" "ID" identifier] 
+                ["FOR" ("TABLE"|"NODE") identifier ["ID" identifier]]".".
+
+stSET = "SET"(
+                      "ASSOCIATION" identifier ( "=" identifier ) 
+                  | 
+                      ( "LIKE" identifier    ) 
+                  |
+                      ( "INITIAL" ) 
+                  |  
+                      "BIT" number "OF" string1 ["TO" identifier]
+                  |  
+                      "BLANK" Expression ("ON"|"OFF") 
+                  |  
+                      "COUNTRY" string1 
+                  |  
+                      "CURSOR" ( ( "FIELD" identifier ["LINE" number] 
+                     [["DISPLAY"|"MEMORY"] "OFFSET" identifier] ) 
+                     | ( "LINE" number 
+                    [["DISPLAY"|"MEMORY"] "OFFSET" identifier] ) 
+                    | ( string1 number ) ) 
+                 |  
+                     "DATASET" identifier ["POSITION" (number|("END" "OF" "FILE"))] 
+                     ["ATTRIBUTES" identifier] 
+                 |  
+                     "EXTENDED" "CHECK" ("ON"|"OFF") 
+                 |  
+                     "HANDLER" identifier  
+                     ["FOR" identifier|("ALL" "INSTANCES")] 
+                     ["ACTIVATION" identifier] 
+                 |  
+                     "HOLD" "DATA" ("ON"|"OFF") 
+                 |  
+                     "LANGUAGE" identifier 
+                 |
+                     "LEFT" "SCROLL-BOUNDARY" ["COLUMN" Expression] 
+                 |  
+                     "LOCALE" "LANGUAGE" identifier ["COUNTRY" string1] ["MODIFIER" string1] 
+                 |  
+                     "MARGIN" number [number] 
+                 | 
+                      "PARAMETER" "ID" identifier "FIELD" identifier 
+                 |  
+                     "PF-STATUS" string1 ["OF" "PROGRAM" identifier] 
+                     ["EXCLUDING" identifier] 
+                     ["IMMEDIATELY"] 
+                 |  
+                     "PROPERTY" "OF" identifier identifier "=" identifier ["NO" "FLUSH"] 
+                                ["EXPORTING" Exps ]
+                 |
+                     "RUN" "TIME" ("ANALYZER" ("ON"|"OFF") 
+                             |   "CLOCK" "RESOLUTION" ("HIGH"|"LOW") )
+                 |  
+                     "SCREEN" identifier 
+                 |  
+                     "TITLEBAR" string1 ["OF" "PROGRAM" identifier] 
+                   ["WITH" string1  string1] 
+                 |
+                     "UPDATE" "TASK" "LOCAL" 
+                 | 
+                     "USER-COMMAND" identifier 
+            ) ".".
+
+stSHIFT = "SHIFT" identifier [ ( [ ("BY" number "PLACES") | ("UP" "TO" string1) ] 
+                 ["LEFT"|"RIGHT"] ["CIRCULAR"] ) 
+           | ( ("LEFT" "DELETING" "LEADING") 
+             | ("RIGHT" "DELETING" "TRAILING") string1) ] 
+           ["IN" ("CHARACTER"|"BYTE") "MODE"]".".
+
+stSKIP = "SKIP" ( [number] 
+     | ("TO" "LINE" number) )".".
+
+
+stSTOP = "STOP"".".
+
+stSUBTRACT = "SUBTRACT" identifier "FROM" identifier".".
+
+stSUBTRACT_CORRESPONDING = "SUBTRACT-CORRESPONDING" identifier "FROM" identifier".".
+
+stSUM = "SUM"".".
+
+stSUMMARY = "SUMMARY"".".
+
+stSUMMING = "SUMMING" identifier".".
+
+stSUPPLY = "SUPPLY" Exps  "TO" "CONTEXT" identifier ".".
+
+stSUPPRESS = "SUPPRESS" "DIALOG"".".
+
+stSYNTAX_CHECK = "SYNTAX-CHECK" "FOR" identifier "MESSAGE" string1 "LINE" number identifier(.is('WORD').) string1 
+                 ["PROGRAM" identifier] ["DIRECTORY" "ENTRY" string1] 
+                 ["WITH" "CURRENT" "SWITCHSTATES"] 
+                 ["INCLUDE" string1] 
+                 ["OFFSET" number] 
+                 ["MESSAGE-ID" identifier]".".
+
+stTEST_INJECTION = "TEST-INJECTION" identifier "." 
+  [Statements] 
+"END-TEST-INJECTION"".".
+
+stTEST_SEAM = "TEST-SEAM" identifier"." 
+  [Statements] 
+"END-TEST-SEAM"".".
+
+stTOP_OF_PAGE = "TOP-OF-PAGE" ["DURING" "LINE-SELECTION"]".".
+
+stTRANSFER = "TRANSFER" identifier "TO" identifier [identifier(.is('LENGTH').) number] 
+                      ["NO" "END" "OF" "LINE"]".".
+
+stTRANSLATE = "TRANSLATE" identifier ("TO" ("UPPER"|"LOWER") "CASE") 
+             | ("USING" string1)".".
+
+stTRUNCATE = "TRUNCATE" "DATASET" identifier "AT" ("CURRENT" "POSITION")|("POSITION" number)".".
+
+
+
+stTYPE_POOLS = "TYPE-POOLS" identifier (.
+                                                        n = prevString
+                                                        src("include #{to_ruby_const(n)}")
+                                                        cp = current_scope
+                                                        out_scope
+                                                        load_file("#{n}")
+                                                        cp.add_require("#{n.downcase}.rb")
+                                                        in_scope(cp)
+    
+    .)".".
+
+stULINE = "ULINE" (["AT"] ["/"] [number] [ "("number")"]) ["NO-GAP"]".".
+
+stUNASSIGN = "UNASSIGN" Var(.o=lus.) "." (.src("unassign(#{o})\n").).
+
+stUNPACK = "UNPACK" identifier "TO" identifier ".".
+
+stWAIT = "WAIT" ("UP" "TO" number "SECONDS") 
+   | ("FOR" ["ASYNCHRONOUS" "TASKS" "UNTIL" Expression ["UP" "TO" number "SECONDS"]] 
+          ["MESSAGING" "CHANNELS" "UNTIL" Expression ["UP" "TO" number "SECONDS"]] 
+          ["PUSH" "CHANNELS" "UNTIL" Expression ["UP" "TO" number "SECONDS"]])".".
+
+stWINDOW = "WINDOW" "STARTING" "AT" string1 number 
+       ["ENDING"  "AT" string1 number]".".  
+  
+
+  
+  /********************************/
+
+stSPLIT = "SPLIT" identifier "AT" Expression "INTO" 
+      (  "TABLE" identifier | identifier{identifier } )
+      ["IN" {"CHARACTER"|"BYTE"} "MODE"] . 
+      
+
+      
+  Expression           =  Conditional { AssignmentOperator Expression   }  .
+  /* abap expression dosn't include conditional or relationexp, because in abap "=" can be assignment and comparison 
+  Expression          =  ShiftExp { AssignmentOperator ShiftExp   } .*/
+  
+  /* abap logicexp is conditional */
+  Conditional          =  LogORExp  .
+
+  LogORExp             =  LogANDExp   { ("||" | "OR"(.re("or").) | "EQUIV"(.re("or").)) LogANDExp }  .
+
+  LogANDExp            =  LogNOTExp   { ("&&" | "AND"(.re("and").)) LogNOTExp } .
+  
+  LogNOTExp = ["NOT"(.re("!").)] InclORExp.
+
+  InclORExp            =  ExclORExp   { "|" ExclORExp }   .
+
+  ExclORExp            =  ANDExp      { "^" ANDExp }    .
+
+  ANDExp               =  EqualExp    { "&" EqualExp }    .
+
+  EqualExp             =  RelationExp (
+                              { ( /*"=" (.re("==").)| */"EQ"(.re("==").)| "<>" (.re("!=").)| "NE"(.re("!=").)  | "LIKE" ) RelationExp } 
+                          |
+                             ["NOT"] "BETWEEN" RelationExp "AND" RelationExp
+                          | 
+                              "IS"(.s=".is".) ["NOT" (.s+="Not";.)] PredefinedConstant (.s+=lus;r="#{s}()";src(r).)
+                          )  
+  .
+
+  RelationExp          =    ShiftExp (. r = lus .)   { 
+                              ( "IN" | "<" | "LT"  | ">" | "GT" | "<=" | "LE" | ">=" | "GE" | "CO" | "CN" | "CA" | "NA" | "CS" | "NS" | "CP" | "NP" |"BYTE-CO" | "BYTE-CN" | "BYTE-CA" | "BYTE-NA" | "BYTE-CS" | "BYTE-NS" )  
+                              (.op = prevString().)
+                               ShiftExp   
+                               (.
+                                   exp2 = lus
+                                   if op == "IN"
+                                      r = "IN(#{exp2}, #{r})"
+                                   else
+                                     r +=" #{op} #{exp}"
+                                   end
+                               .)
+                                }   
+                                (. src(r).).
+
+  ShiftExp             =  AddExp      { ( "<<" | ">>" ) AddExp }       .
+              
+                
+                
+  AddExp               =  MultExp     { ( "+"  | "-" | "&&"(.re("+").) ) MultExp }    .
+
+  MultExp              =   CastExp  
+ { ( "*"   | "/" | "DIV"  | "%"  | "MOD" | "**" ) CastExp }    .
+
+  CastExp              =   UnaryExp     .
+
+
+
+  UnaryExp             =  PostFixExp
+                        /* | ( "++" | "--" ) UnaryExp*/
+                         | UnaryOperator CastExp 	
+                            
+					.
+
+
+  PostFix<A* r> =   (. n=r.)   {    "[" [Expression] "]" (.r+="[#{lus}]".)
+                          | ["#"] FunctionCall<r> (.
+                              if r == "DATA" || r == "FIELD-SYMBOL"
+                                 r = lus[1..lus.size-2]                              
+                              else
+                                  if n.start_with?("super.") 
+                                      mname = n.gsub("super.","")
+                                      r = "super_method(#{current_ruby_scope.class_name}, :#{mname}).call" 
+                                  else
+                                      r+="#{lus}"
+                                  end
+                              end
+                              .)
+                        /*  | "~" identifier
+                          | "-" identifier*/
+                        /* althgouth identifier include ->, but still need "->" in postfix, e.g. a->b()->c()*/
+                          | "->" identifier (.
+                                  r+=".#{prevString}"
+                              
+                              .)
+                          | "=>" identifier  (.
+                              r+="::#{to_ruby_const(prevString)}"
+                              .)
+                         /* | "++" (.r+="++".)
+                          | "--"(.r+="--".)*/
+                        /*  | "IS"(.re(".is(");br = true.) ["NOT"(.back_src();re(".isnot(");_not=true.)] ["INITIAL"(.back_src();if _not 
+  re(".isInit(")
+  else
+  re(".isNotInit(")
+  end
+  add_src(")") if br
+  .)]*/ 
+                         
+                         }  
+                         (. 
+                             no_space(false)
+                             if r != ""
+                                 src(r)
+                             end
+                        .)  .
+  PostFixExp           =  (.no_space;r="".) Primary (. 
+                                                      pri = lus
+                                                      if @sym == C_EqualGreaterSym
+                                                          pri = to_ruby_const(pri)
+                                                      end
+                                                      r += pri
+                                                       .)
+                          PostFix<r> (.r = lus.)
+                         (. 
+                             no_space(false)
+                             if r != ""
+                                 src(r)
+                             end
+                        .) .   
+  
+  Primary              =  string1{string1}
+                           | regex1 (.src(convert_regex(prevString)).)
+                           | "NEW"(.back().) Creator
+                           | char 
+                           | number 
+                           | "(" Expression ")" 
+                           | PredefinedConstant 
+                           | NameInPrimary
+                          /* | ["<"]identifier[">"] 
+                           | "/" identifier {"/" identifier }*/
+                              .
+                              
+  Creator = identifier (.name=prevString.)[FunctionCall<name>] (.src("#{name}.new#{lus}").).
+  
+                              /* abap logicexp is conditional */
+                            
+
+                              LogExp             =   (.no_comments().)  LogLogANDExp   { ("||" | "OR"(.re("||").) | "EQUIV") LogLogANDExp } (.no_comments(false).)  .
+                             
+                              LogLogANDExp            =  LogLogNOTExp   { (/*"&&" |*/ "AND"(.re("&&").)) LogLogNOTExp } .
+  
+                              LogLogNOTExp = ["NOT"(.re("!").)] LogInclORExp.
+                              
+                              LogInclORExp            =  LogExclORExp   { "|" LogExclORExp }   .
+
+                              LogExclORExp            =  LogANDExp2      { "^" LogANDExp2 }    .
+
+                              LogANDExp2               =  LogEqualExp    { "&" LogEqualExp }    .
+
+                              LogEqualExp             =  LogRelationExp (
+                                                          { ( "=" (.re("==").)| "EQ"(.re("==").)| "<>" (.re("!=").)| "NE"(.re("!=").)  | "LIKE" ) LogRelationExp } 
+                                                      |
+                                                         ["NOT"] "BETWEEN" LogRelationExp "AND" LogRelationExp
+                                                      |
+                                                          "IS"(.back();s=".is".) ["NOT" (.back();s+="Not";.)] PredefinedConstant (.back();s+=lus;r="#{s}()";add_src(r).)
+                                                      
+                                                      )  
+                              .
+
+                             LogRelationExp          =    LogShiftExp   { (.br=false.)
+                                                          ( "IN" | "<" | "LT"  | ">" | "GT" | "<=" | "LE" | ">=" | "GE" | "CO" | "CN" | "CA" | "NA" | "CS" | "NS" | "CP" | "NP"(.re(".include?(");br=true;.) |"BYTE-CO" | "BYTE-CN" | "BYTE-CA" | "BYTE-NA" | "BYTE-CS" | "BYTE-NS" )  
+                                                           LogShiftExp (. re("#{lus})") if br.)  }   .
+
+                              LogShiftExp             =  LogAddExp      { ( "<<" | ">>" ) LogAddExp }       .
+              
+                
+                
+                              LogAddExp               =  LogMultExp     { ( "+"  | "-" | "&&"(.re("+").) ) LogMultExp }    .
+
+                              LogMultExp              =   LogCastExp  
+                             { ( "*"   | "/" | "DIV"  | "%"  | "MOD" | "**" ) LogCastExp }    .
+
+                              LogCastExp              =   LogUnaryExp     .
+
+
+
+                              LogUnaryExp             =  LogPostFixExp
+                                                   /*  | ( "++" | "--" ) LogUnaryExp*/
+                                                     | UnaryOperator LogCastExp 	
+                            
+                            					.
+
+
+
+                              LogPostFixExp           = (.no_space;r="".) LogPrimary (. pri = lus
+                                                                          if curString == "=>"
+                                                                              pri = to_ruby_const(pri)
+                                                                          end
+                                                                          r += pri.)
+                                                  PostFix<r>(.r = lus.)
+                                                      (. 
+                                                 no_space(false)
+                                                 if r != ""
+                                                     src(r)
+                                                 end
+                                            .) .   
+  
+                              LogPrimary              =  string1{string1}
+                                                      | regex1 (.src(convert_regex(prevString)).)
+                                                       | char 
+                                                       | number 
+                                                       | "(" LogExp ")" 
+                                                       | PredefinedConstant 
+                                                       | NameInPrimary
+                                                       
+                                                      /* | ["<"]identifier[">"] 
+                                                       | "/" identifier {"/" identifier }*/
+                                                          .                          
+                              
+
+  
+  FunctionCall<A *name>        =  "(" (.stop_autosrc;no_comments.)
+  (
+       {
+          ["EXPORTING" (. exporting = "{\n".){ identifier(.idn = prevString.) "=" Expression (.exporting+="\"#{idn}\" => \"#{lus}\",\n".)} (. exporting += "}".)  ] 
+          ["IMPORTING" (. importing = "{\n".) { identifier(.idn = prevString.) "=" Expression (.importing+="\"#{idn}\" => #{lus},\n".)} (. importing += "}".)  ] 
+          ["CHANGING" (. changing = "{\n".) { identifier(.idn = prevString.) "=" Expression (.changing+="\"#{idn}\" => #{lus},\n".)} (. changing += "}".)  ] 
+          ["RECEIVING" (. receiving = "{\n".) { identifier(.idn = prevString.) "=" Expression (.receiving+="\"#{idn}\" => #{lus},\n".)} (. receiving += "}".)  ] 
+          ["EXCEPTIONS" (. exceptions = "{\n".) { identifier(.idn = prevString.) "=" Expression (.exceptions+="\"#{idn}\" => #{lus},\n".)} (. exceptions += "}".) ["OTHERS" "=" Expression ] ] 
+          
+       }
+       (.
+           params= {}
+           params[:_i]=importing
+           params[:_e]=exporting
+           params[:_c]=changing
+           params[:_b]="binding"
+           src("(#{hash_to_params(params)})")
+       .)
+  |
+       (.s="";e={}.) 
+     /*  {  ShiftExp (. a = lus;s+=lus;.)[ "=" Expression  (.e[a]=lus.) ] (.s+=",".)}*/
+     {Expression
+         (.
+             l = lut
+             if l.size == 3 && l[1] == "="
+                 s += "#{l[0]} = #{l[2]},"
+                 e[l[0]] = l[2]
+             else
+                 s += "#{lus},"
+             end
+             
+             
+             .)
+      }
+       (.
+           if e.keys.size>0
+               src("(#{hash_to_params(e)})")
+           else
+
+                   src("(#{s[0..s.size-2]})")
+              
+           end
+       .)
+   ) ")"     
+   (.no_comments(false).)
+    .
+
+  /*ActualParameters    =    Expression   { "," Expression   }      .*/
+
+  AssignmentOperator   =    "="  | "*=" | "/=" | "%=" | "+=" | "-=" | "&="
+                         | "^="  | "<<=" | ">>=" | "?="(.re("=").)   .
+
+  UnaryOperator        =  "+" | /*MinusOperator |*/ "-" | "*" | "!" | "&" | "~" | "NOT"(.re("!").) |  "INSTANCE" "OF" | "IN"    .
+
+ /* MinusOperator = space1 "-" | "-" space1 .*/
+
+  PredefinedConstant = "INITIAL" | "BOUND" | "ASSIGNED" | "SUPPLIED" | "REQUESTED" .
+
+END C.
