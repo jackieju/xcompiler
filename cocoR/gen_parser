@@ -1,6 +1,7 @@
 set -e
 
 atgfile=$1
+
 cpp2ruby_dir=../../CPP2Ruby
 
 # cocor execute
