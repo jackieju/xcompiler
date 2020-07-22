@@ -37,6 +37,8 @@ You also put your code in atg to generate code destination language.
 
 Please see example at https://github.com/jackieju/abap2ruby.
 
+Other atg file(EBNF) samples: https://github.com/jackieju/xcompiler/tree/master/cocoR/cocor17/samples 
+
 3. Modify macro.rb to do preprocessing
 
 4. Modfiy cp.rb to do overriding
