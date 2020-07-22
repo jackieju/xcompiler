@@ -31,6 +31,10 @@ In case you change the location of cpp2ruby, you can edit file gen_parser and ch
     cpp2ruby_dir=../../CPP2Ruby
 </pre>
 
+EBNF(https://tomassetti.me/ebnf/) describes the syntax of source language, which written in atg file used by cocoR(http://www.ssw.uni-linz.ac.at/Coco/)
+You also put your code in atg to generate code destination language.
+Please see example at https://github.com/jackieju/abap2ruby.
+
 3. Modify macro.rb to do preprocessing
 
 4. Modfiy cp.rb to do overriding
