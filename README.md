@@ -5,6 +5,7 @@ Cross compile any programming language to another
 *** HOW TO USE
 
 1. Prepare
+
 This project developed on macos. But should be easy to port on windows, since it uses ruby.
 
 You need to have ruby 2.6+.
