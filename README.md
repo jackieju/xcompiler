@@ -4,6 +4,9 @@ Cross compile any programming language to another
 
 *** HOW TO USE
 
+Video: https://youtu.be/tc00vaMgB2M 
+
+
 1. Prepare
 
 This project developed on macos. But should be easy to port on windows, since it uses ruby.
