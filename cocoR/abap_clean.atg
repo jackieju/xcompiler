@@ -1,3 +1,7 @@
+/*
+Copyright (c) 2020 Ju Weihua (Ju Jackie)
+All rights reserved.
+*/
 COMPILER C
 
 /*IGNORECASE*/
@@ -140,7 +144,7 @@ PRODUCTIONS
   
      .
     
-    ReportDef          = "REPORT"  identifier   
+    ReportDef          = "REPORT" (. fname=curString .) identifier   (. src("") .)
             {
                ["NO" "STANDARD" "PAGE" "HEADING"] 
                ["LINE-SIZE" number] 
@@ -150,8 +154,10 @@ PRODUCTIONS
                ["REDUCED" "FUNCTIONALITY"] 
            }
                "."
-    {Statement}
-                       
+    {Statement}  
+    (.
+      @root_class.add_method(fname, "()", [], src, "")
+    .)
                     /*EOF*/ .
 
     FunctionDef = "FUNCTION"  identifier "."   
@@ -714,12 +720,14 @@ stCONSTANTS = "CONSTANTS" identifier ( TypeDes |
                 ) "VALUE" { Expression | "IS" "INITIAL" } "." .*/
 
 
-WriteStatement =    "WRITE" 
+WriteStatement =  (. param_hash = {} .)  "WRITE" 
     (
         {["AT"] ["/"][number 
-         
+         (. param_hash["col"] = curString().to_i .)
          ][ "(" (Expression | "*" | "**") ")" ]} [Expression] 
-         
+         (.
+             param_hash["s"] = lus
+         .)
           {
               ["UNDER" identifier] 
               ["NO-GAP"] 
@@ -734,7 +742,7 @@ WriteStatement =    "WRITE"
                   { 
                        ["DECIMALS" string1] ["ROUND" number]  
                     | ["UNIT" string1] 
-                    } 
+                  } 
      
                 | { ["ENVIRONMENT" "TIME" "FORMAT"] 
                     ["TIME" "ZONE" string1] } 
@@ -767,7 +775,14 @@ WriteStatement =    "WRITE"
           ["DD/MM/YY"|"MM/DD/YY"|"DD/MM/YYYY"|"MM/DD/YYYY"|"DDMMYY"|"MMDDYY"|"YYMMDD"] 
     )  
     "." 
+    (.
   
+    params = []
+    param_hash.each{|k,v|
+        params.push "#{k}: #{v}"
+    }
+    src("write(#{params.join(", ")})\n")
+    .)
   . 
 
   AssignmentStatement =  Expression  .
@@ -2199,8 +2214,8 @@ stSPLIT = "SPLIT" identifier "AT" Expression "INTO"
 					.
 
 
-  PostFix<A* r> =      {    "[" [Expression] "]" 
-                          | ["#"] FunctionCall<r> 
+  PostFix =      {    "[" [Expression] "]" 
+                          | ["#"] FunctionCall 
                         /*  | "~" identifier
                           | "-" identifier*/
                         /* althgouth identifier include ->, but still need "->" in postfix, e.g. a->b()->c()*/
@@ -2213,7 +2228,7 @@ stSPLIT = "SPLIT" identifier "AT" Expression "INTO"
                          }  
                            .
   PostFixExp           =   Primary 
-                          PostFix<r> 
+                          PostFix 
                           .   
   
   Primary              =  string1{string1}
@@ -2228,7 +2243,7 @@ stSPLIT = "SPLIT" identifier "AT" Expression "INTO"
                            | "/" identifier {"/" identifier }*/
                               .
                               
-  Creator = identifier [FunctionCall<name>] .
+  Creator = identifier [FunctionCall] .
   
                               /* abap logicexp is conditional */
                             
@@ -2281,7 +2296,7 @@ stSPLIT = "SPLIT" identifier "AT" Expression "INTO"
 
 
                               LogPostFixExp           =  LogPrimary 
-                                                  PostFix<r>
+                                                  PostFix
                                                        .   
   
                               LogPrimary              =  string1{string1}
@@ -2298,7 +2313,7 @@ stSPLIT = "SPLIT" identifier "AT" Expression "INTO"
                               
 
   
-  FunctionCall<A *name>        =  "(" 
+  FunctionCall        =  "(" 
   (
        {
           ["EXPORTING" { identifier "=" Expression }   ] 
