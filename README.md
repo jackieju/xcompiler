@@ -36,11 +36,11 @@ In case you change the location of cpp2ruby, you can edit file gen_parser and ch
 
 EBNF(https://tomassetti.me/ebnf/) describes the syntax of source language, written in atg file which will be used by cocoR(http://www.ssw.uni-linz.ac.at/Coco/)
 
-You also put your code in atg to generate code destination language.
+You also put your code in atg to generate code of destination language.
 
 Please see example at https://github.com/jackieju/abap2ruby.
 
-Other atg file(EBNF) samples: https://github.com/jackieju/xcompiler/tree/master/cocoR/cocor17/samples 
+List of atg files(EBNF) for popular langauge: https://github.com/jackieju/xcompiler/tree/master/cocoR/cocor17/samples 
 
 3. Modify macro.rb to do preprocessing
 
