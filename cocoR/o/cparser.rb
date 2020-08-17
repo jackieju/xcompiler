@@ -3583,7 +3583,7 @@ class CParser < CRRParser
       _in_()
       Expect(C_REPORTSym)
 
-      fname=curString;
+      fname = curString;
 
       Expect(C_identifierSym)
 
@@ -5134,7 +5134,7 @@ class CParser < CRRParser
    def WriteStatement()
       _in_()
 
-      param_hash = {};
+      params_hash={};
 
       Expect(C_WRITESym)
       if @sym==C_numberSym||@sym>=C_stringD1Sym&&@sym<=C_regexD1Sym||@sym>=C_identifierSym&&@sym<=C_PARAMETERSym||@sym==C_TARGETSym||@sym>=C_KEYSym&&@sym<=C_KINDSym||@sym>=C_ACTIVATIONSym&&@sym<=C_FUNCTIONALITYSym||@sym>=C_DISTINCTSym&&@sym<=C_JOINSym||@sym>=C_ORDERSym&&@sym<=C_SIZESym||@sym>=C_SINGLESym&&@sym<=C_FORSym||@sym>=C_ENTRIESSym&&@sym<=C_ENDWITHSym||@sym>=C_EXACTSym&&@sym<=C_KEEPINGSym||@sym==C_CASTINGSym||@sym>=C_CHARACTERSym&&@sym<=C_BLANKSSym||@sym>=C_STARTINGSym&&@sym<=C_MARKSym||@sym>=C_EVENTSym&&@sym<=C_RAISINGSym||@sym>=C_TEXTSym&&@sym<=C_MEMBERSSym||@sym>=C_VERSIONSym&&@sym<=C_SCREENSym||@sym>=C_LOBSym&&@sym<=C_STATICSSym||@sym>=C_BEGINSym&&@sym<=C_ISSym||@sym>=C_UNDERSym&&@sym<=C_TIMESym||@sym>=C_ZONESym&&@sym<=C_QUICKINFOSym||@sym>=C_WHENSym&&@sym<=C_OTHERSSym||@sym>=C_FIELDSym&&@sym<=C_NEXTSym||@sym==C_TIMESSym||@sym==C_OPTIONALSym||@sym>=C_CURRENTSym&&@sym<=C_CHANGESym||@sym>=C_CURSORSym&&@sym<=C_CODESym||@sym>=C_FILTERSym&&@sym<=C_REPLACEMENTSym||@sym==C_BOUNDSSym||@sym>=C_INCLUDINGSym&&@sym<=C_GAPSSym||@sym>=C_ACTUALSym&&@sym<=C_LANGUAGESym||@sym==C_VIASym||@sym>=C_EQSym&&@sym<=C_NOTSym||@sym>=C_SELECTIONSSym&&@sym<=C_JOBSym||@sym>=C_BEFORESym&&@sym<=C_CLEANUPSym||@sym==C_ASSOCIATIONSym||@sym>=C_ENUMSym&&@sym<=C_MESHSym||@sym==C_VARYSym||@sym>=C_TASKSym&&@sym<=C_PERFORMINGSym||@sym==C_ELSESym||@sym>=C_DEFINITIONSym&&@sym<=C_SECTIONSym||@sym>=C_REDEFINITIONSym&&@sym<=C_PREFERREDSym||@sym>=C_THENSym&&@sym<=C_ACCORDINGSym||@sym>=C_SUBKEYSym&&@sym<=C_CONDITIONSym||@sym>=C_COMPONENTSym&&@sym<=C_LASTSym||@sym==C_DIALOGSym||@sym>=C_PROCEDURESym&&@sym<=C_BADISym||@sym==C_NULLSym||@sym==C_WORKSym||@sym>=C_TABLEVIEWSym&&@sym<=C_TABSTRIPSym||@sym>=C_SORTABLESym&&@sym<=C_SAVINGSym||@sym==C_CONTEXTSym||@sym>=C_DISTANCESym&&@sym<=C_PAGESSym||@sym>=C_TITLESym&&@sym<=C_BACKUPSym||@sym==C_SQLSym||@sym>=C_INTERNALSym&&@sym<=C_OFFSym||@sym>=C_OCCURRENCESym&&@sym<=C_RESETSym||@sym>=C_SUBROUTINESym&&@sym<=C_POOLSym||@sym>=C_FILTERSSym&&@sym<=C_RUNSym||@sym>=C_ACCEPTINGSym&&@sym<=C_FOUNDSym||@sym==C_PERSONSym||@sym>=C_VALUESSym&&@sym<=C_ENABLINGSym||@sym>=C_PARTIALLYSym&&@sym<=C_IMPLEMENTEDSym||@sym>=C_SCROLLINGSym&&@sym<=C_PRINTSym||@sym==C_ONLYSym||@sym>=C_OBLIGATORYSym&&@sym<=C_PATTERNSym||@sym==C_CONTROLSym||@sym>=C_COLUMNSym&&@sym<=C_TITLEBARSym||@sym>=C_CIRCULARSym&&@sym<=C_TRAILINGSym||@sym>=C_SWITCHSTATESSym&&@sym<=C_DURINGSym||@sym==C_UPPERSym||@sym>=C_SECONDSSym&&@sym<=C_PUSHSym||@sym>=C_DIVSym&&@sym<=C_LINESSym||@sym==C_LparenSym||@sym==C_PointSym||@sym==C_StarSym||@sym==C_TildeSym||@sym==C_PlusSym||@sym==C_SlashSym||@sym>=C_NOMinusGAPSym&&@sym<=C_MMSlashDDSlashYYYYSym||@sym==C_AndSym||@sym==C_MinusSym||@sym==C_BangSym
@@ -5150,7 +5150,7 @@ class CParser < CRRParser
             if @sym==C_numberSym
                Get()
 
-               param_hash["col"] = curString().to_i;
+               params_hash["col"] = curString().to_i;
 
             end
 
@@ -5183,7 +5183,8 @@ class CParser < CRRParser
 
 
 
-         param_hash["s"] = lus;
+         params_hash["s"] = lus
+         ;
 
          while (@sym==C_DECIMALSSym||@sym>=C_ASSym&&@sym<=C_USINGSym||@sym>=C_UNDERSym&&@sym<=C_TIMESym||@sym==C_STYLESym||@sym>=C_DDMMYYSym&&@sym<=C_YYMMDDSym||@sym==C_QUICKINFOSym||@sym==C_INPUTSym||@sym==C_COLORSym||@sym>=C_INTENSIFIEDSym&&@sym<=C_RESETSym||@sym>=C_NOMinusGAPSym&&@sym<=C_MMSlashDDSlashYYYYSym)
             if @sym==C_UNDERSym
@@ -5542,12 +5543,13 @@ class CParser < CRRParser
       Expect(C_PointSym)
 
 
-
       params = []
-      param_hash.each{|k,v|
-         params.push "#{k}: #{v}"
+      params_hash.each{|k,v|
+         params.push("#{k}:#{v}")
       }
-      src("write(#{params.join(", ")})\n");
+      src("write(#{params.join(",")})\n")
+
+      ;
 
       _out_()
    end

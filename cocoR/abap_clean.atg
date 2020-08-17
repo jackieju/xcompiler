@@ -144,7 +144,7 @@ PRODUCTIONS
   
      .
     
-    ReportDef          = "REPORT" (. fname=curString .) identifier   (. src("") .)
+    ReportDef          = "REPORT" (. fname = curString.) identifier   (. src("").)
             {
                ["NO" "STANDARD" "PAGE" "HEADING"] 
                ["LINE-SIZE" number] 
@@ -156,7 +156,7 @@ PRODUCTIONS
                "."
     {Statement}  
     (.
-      @root_class.add_method(fname, "()", [], src, "")
+            @root_class.add_method(fname, "()", [], src, "")
     .)
                     /*EOF*/ .
 
@@ -720,13 +720,14 @@ stCONSTANTS = "CONSTANTS" identifier ( TypeDes |
                 ) "VALUE" { Expression | "IS" "INITIAL" } "." .*/
 
 
-WriteStatement =  (. param_hash = {} .)  "WRITE" 
+WriteStatement = (. params_hash={} .)   "WRITE" 
     (
         {["AT"] ["/"][number 
-         (. param_hash["col"] = curString().to_i .)
+        (. params_hash["col"] = curString().to_i .)
          ][ "(" (Expression | "*" | "**") ")" ]} [Expression] 
          (.
-             param_hash["s"] = lus
+             params_hash["s"] = lus
+             
          .)
           {
               ["UNDER" identifier] 
@@ -776,12 +777,13 @@ WriteStatement =  (. param_hash = {} .)  "WRITE"
     )  
     "." 
     (.
-  
-    params = []
-    param_hash.each{|k,v|
-        params.push "#{k}: #{v}"
-    }
-    src("write(#{params.join(", ")})\n")
+        params = []
+        params_hash.each{|k,v|
+            params.push("#{k}:#{v}")
+        }
+        src("write(#{params.join(",")})\n")
+        
+        
     .)
   . 
 
